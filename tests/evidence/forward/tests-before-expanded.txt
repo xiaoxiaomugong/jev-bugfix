@@ -1,0 +1,21 @@
+$ python3 -m unittest discover -s tests -v
+test_explicit_zero_promotion (test_shop.CheckoutTests) ... FAIL
+test_full_promotion (test_shop.CheckoutTests) ... ok
+test_none_promotion_uses_default (test_shop.CheckoutTests) ... ok
+test_omitted_promotion (test_shop.CheckoutTests) ... ok
+test_twenty_percent_promotion (test_shop.CheckoutTests) ... ok
+
+======================================================================
+FAIL: test_explicit_zero_promotion (test_shop.CheckoutTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/var/folders/kx/lwy79sr111d1vz20kybwszzw0000gn/T/jev-bugfix-forward-pqf3nmrl/tests/test_shop.py", line 6, in test_explicit_zero_promotion
+    self.assertEqual(checkout([(50, 2)], promo_percent=0), 108)
+AssertionError: 97.2 != 108
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.000s
+
+FAILED (failures=1)
+
+exit_code: 1

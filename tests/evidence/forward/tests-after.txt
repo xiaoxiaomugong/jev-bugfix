@@ -1,0 +1,13 @@
+$ python3 -m unittest discover -s tests -v
+test_explicit_zero_promotion (test_shop.CheckoutTests) ... ok
+test_full_promotion (test_shop.CheckoutTests) ... ok
+test_none_promotion_uses_default (test_shop.CheckoutTests) ... ok
+test_omitted_promotion (test_shop.CheckoutTests) ... ok
+test_twenty_percent_promotion (test_shop.CheckoutTests) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.000s
+
+OK
+
+exit_code: 0

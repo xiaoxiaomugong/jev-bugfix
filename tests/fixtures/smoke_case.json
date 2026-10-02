@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "reviewed_for_secrets": true,
+  "bug": {
+    "description": "Synthetic integration example: first([]) raises IndexError.",
+    "reproduction": {
+      "steps": ["first([])"],
+      "expected": "Return None for an empty list.",
+      "actual": "IndexError: list index out of range"
+    },
+    "stack_trace": ["src/first.py:2 in first"]
+  },
+  "candidates": [
+    {
+      "id": "first",
+      "path": "src/first.py",
+      "start_line": 1,
+      "end_line": 2,
+      "snippet": "def first(items):\n    return items[0]",
+      "origins": ["stack", "rg"]
+    }
+  ]
+}

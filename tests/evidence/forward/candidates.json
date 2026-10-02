@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "reviewed_for_secrets": true,
+  "bug": {
+    "description": "checkout 显式传入 promo_percent=0 时，零优惠错误地变为默认优惠。",
+    "reproduction": {
+      "steps": [
+        "python3 -m unittest discover -s tests -v"
+      ],
+      "expected": "checkout([(50, 2)], promo_percent=0) returns 108; omitted promotion remains 97.2; 20% promotion remains 86.4.",
+      "actual": "test_explicit_zero_promotion fails: AssertionError: 97.2 != 108. Omitted promotion and 20% promotion tests pass."
+    },
+    "stack_trace": [
+      "tests/test_shop.py:6 in test_explicit_zero_promotion"
+    ]
+  },
+  "candidates": [
+    {
+      "id": "zero_promotion_test",
+      "path": "tests/test_shop.py",
+      "start_line": 4,
+      "end_line": 6,
+      "snippet": "class CheckoutTests(unittest.TestCase):\n    def test_explicit_zero_promotion(self):\n        self.assertEqual(checkout([(50, 2)], promo_percent=0), 108)",
+      "origins": [
+        "stack",
+        "rg"
+      ]
+    },
+    {
+      "id": "checkout",
+      "path": "shop.py",
+      "start_line": 1,
+      "end_line": 5,
+      "snippet": "from pricing import discounted_subtotal\nfrom tax import apply_tax\n\ndef checkout(items, promo_percent=None):\n    return apply_tax(discounted_subtotal(items, promo_percent))",
+      "origins": [
+        "rg",
+        "call"
+      ]
+    },
+    {
+      "id": "pricing",
+      "path": "pricing.py",
+      "start_line": 1,
+      "end_line": 4,
+      "snippet": "def discounted_subtotal(items, promo_percent=None):\n    subtotal = sum(unit_price * quantity for unit_price, quantity in items)\n    discount = promo_percent or 10\n    return subtotal * (1 - discount / 100)",
+      "origins": [
+        "rg",
+        "call"
+      ]
+    },
+    {
+      "id": "tax",
+      "path": "tax.py",
+      "start_line": 1,
+      "end_line": 2,
+      "snippet": "def apply_tax(amount):\n    return round(amount * 1.08, 2)",
+      "origins": [
+        "call"
+      ]
+    }
+  ]
+}

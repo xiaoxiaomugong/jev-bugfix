@@ -1,0 +1,4 @@
+interface:
+  display_name: "Jev Bugfix"
+  short_description: "用本机 Jev 对 bug 候选代码排序，由 Codex 查因、修复和验证"
+  default_prompt: "使用 $jev-bugfix 定位并修复这个 bug，先复现，再按相关性评分调查候选代码并验证修复。"
