@@ -181,7 +181,8 @@ def sensitive_path(path):
     parts = path.lower().split("/")
     return (any(part == ".env" or part.startswith(".env.") or part in (".aws", ".ssh", ".git")
                 for part in parts)
-            or parts[-1] in ("credentials", "id_rsa", "id_dsa", "id_ecdsa", "id_ed25519")
+            or parts[-1] in ("credentials", ".netrc", "_netrc",
+                             "id_rsa", "id_dsa", "id_ecdsa", "id_ed25519")
             or Path(path).suffix.lower() in (".key", ".pem", ".p12", ".pfx", ".keystore"))
 
 

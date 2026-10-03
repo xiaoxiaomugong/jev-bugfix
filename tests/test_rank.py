@@ -673,5 +673,74 @@ class RankCandidatesCLI(unittest.TestCase):
                 self.assertNotIn("can't open file", completed.stderr)
 
 
+class CredentialPathBoundary(unittest.TestCase):
+    """Check disclosure decisions without a platform-specific child process."""
+
+    def test_netrc_candidates_never_reach_scoring(self):
+        # netrc uses whitespace rather than the ':'/'=' credential syntax.
+        snippets = (
+            "machine example.invalid login demo password SYNTHETIC_NETRC_VALUE",
+            "machine example.invalid\nlogin demo\npassword SYNTHETIC_NETRC_VALUE",
+            "SYNTHETIC_NETRC_VALUE",  # A candidate can contain only part of a file.
+        )
+        for path in (".netrc", "_netrc", "config/.netrc", "config/_netrc", "config/.NETRC"):
+            for snippet in snippets:
+                with self.subTest(path=path, snippet_lines=len(snippet.splitlines())):
+                    data = case([candidate(path=path, snippet=snippet, origins=["stack"])])
+                    with patch.object(RANK, "run_batch", return_value=(b"", b"", 0, None)) as run:
+                        report = RANK.rank_case(data, SimpleNamespace(
+                            execute=True, jev="unused", batch_timeout=45, request_timeout=10))
+                    run.assert_not_called()
+                    self.assertEqual(report["status"], "fallback")
+                    entry = report["candidates"][0]
+                    self.assertEqual(entry["status"], "local_only")
+                    self.assertEqual(entry["error"]["code"], "sensitive_candidate")
+                    self.assertTrue(entry["must_inspect"])
+                    self.assertEqual(entry["path"], path)
+                    self.assertIsNone(entry["score"])
+                    self.assertEqual(report["usage"]["payload_bytes"], 0)
+                    self.assertEqual(report["usage"]["cli_invocations"], 0)
+                    self.assertEqual(report["usage"]["submitted_candidates"], 0)
+                    self.assertEqual(report["usage"]["http_attempts_upper_bound"], 0)
+                    self.assertNotIn("SYNTHETIC_NETRC_VALUE", json.dumps(report))
+
+    def test_mixed_batch_only_sends_safe_candidate(self):
+        safe = candidate("safe")
+        private = candidate("private", path="config/.netrc", origins=["stack"],
+                            snippet="machine example.invalid login demo password SYNTHETIC_NETRC_VALUE")
+
+        def score_safe(command, payload, timeout):
+            states = [json.loads(line) for line in payload.splitlines()]
+            self.assertEqual([state["candidate"] for state in states], [safe])
+            self.assertNotIn(b"SYNTHETIC_NETRC_VALUE", payload)
+            answer = {"type": "score", "score": 3, "value": 3, "label": "3",
+                      "legend": {str(i): str(i) for i in range(5)},
+                      "probabilities": {str(i): float(i == 3) for i in range(5)},
+                      "confidence": 1.0}
+            return (json.dumps({"input": states[0], "answer": answer}).encode() + b"\n",
+                    b"", 0, None)
+
+        with patch.object(RANK, "run_batch", side_effect=score_safe) as run:
+            report = RANK.rank_case(case([safe, private]), SimpleNamespace(
+                execute=True, jev="unused", batch_timeout=45, request_timeout=10))
+        run.assert_called_once()
+        self.assertEqual(report["status"], "partial")
+        self.assertEqual(report["candidates"][0]["score"], 0.75)
+        self.assertEqual(report["candidates"][1]["status"], "local_only")
+        self.assertTrue(report["candidates"][1]["must_inspect"])
+        self.assertEqual(report["usage"]["submitted_candidates"], 1)
+        self.assertEqual(report["usage"]["http_attempts_upper_bound"], 2)
+        self.assertNotIn("SYNTHETIC_NETRC_VALUE", json.dumps(report))
+
+    def test_netrc_related_source_files_remain_eligible(self):
+        for path in ("src/netrc.py", "src/_netrc_parser.py", "docs/netrc.md"):
+            with self.subTest(path=path):
+                report = RANK.rank_case(case([candidate(path=path)]), SimpleNamespace(
+                    execute=False, batch_timeout=45, request_timeout=10))
+                self.assertEqual(report["status"], "dry_run")
+                self.assertEqual(report["candidates"][0]["status"], "pending")
+                self.assertGreater(report["usage"]["payload_bytes"], 0)
+
+
 if __name__ == "__main__":
     unittest.main()
