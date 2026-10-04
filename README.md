@@ -60,6 +60,8 @@ python3 skills/jev-bugfix/scripts/rank_candidates.py --input tests/fixtures/smok
 python3 -m unittest discover -s tests -p 'test_*.py' -v
 ```
 
+GitHub Actions 会在 push / pull request 时运行上述离线测试，覆盖 Linux、macOS 与 Python 3.9 / 3.14；不安装 Jev，也不运行真实 API 冒烟。
+
 助手和离线单元测试只用 Python 标准库。如果本机有 Codex 自带的 skill-creator 校验器，还可检查技能结构（需要 PyYAML）：
 
 ```sh
