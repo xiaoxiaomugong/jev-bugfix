@@ -50,6 +50,25 @@ def main():
                 "states": states,
             }, ensure_ascii=False) + "\n")
 
+    if sys.argv[1:] == ["--version"]:
+        version_mode = os.environ.get("FAKE_JEV_VERSION_MODE", "success")
+        if version_mode == "timeout":
+            time.sleep(5)
+        elif version_mode in {"output_limit", "stderr_limit"}:
+            stream = sys.stderr if version_mode == "stderr_limit" else sys.stdout
+            print(UNTRUSTED_ERROR + "x" * 1500, file=stream, flush=True)
+            return 0
+        elif version_mode == "unknown":
+            print("jev 0.4.0")
+            return 0
+        elif version_mode == "malformed":
+            print(UNTRUSTED_ERROR + " jev 0.3.2")
+            return 0
+        elif version_mode == "empty":
+            return 0
+        print("jev 0.3.2")
+        return 2 if version_mode == "nonzero" else 0
+
     mode = os.environ.get("FAKE_JEV_MODE", "success")
     if mode == "fatal":
         print(os.environ.get("FAKE_JEV_ERROR", "jev: 未找到任何 API key"), file=sys.stderr)

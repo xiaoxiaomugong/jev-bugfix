@@ -3,8 +3,8 @@
 
 Run: python3 tests/verify_local_cli.py [--jev /path/to/jev]
 This file is excluded from default unittest discovery. It imports the resolved
-CLI source, runs its real parser, line renderer and retry code, and substitutes
-only credentials, configuration and transport. No subprocess or API is used.
+CLI source, runs its real version branch, parser, line renderer and retry code,
+and substitutes only credentials, configuration and transport. No subprocess or API is used.
 The responses are synthetic; this does not verify the live API's response data.
 """
 
@@ -92,6 +92,16 @@ def suite_for(cli):
             self.assertEqual(ctx.retries, 0)
             self.assertEqual(ctx.timeout, 10)
             return {"answers": {"answer": copy.deepcopy(ANSWER)}, "usage": {}}
+
+        def test_version_preflight_prints_canonical_version_without_credentials(self):
+            with patch.object(cli, "Ctx", forbidden), \
+                    patch.object(cli, "locate_api_key", forbidden), \
+                    patch.object(cli, "read_pinned_provider", forbidden), \
+                    patch.object(cli, "default_env_path", forbidden):
+                code, stdout, stderr = self.run_main("", ["--version"])
+            self.assertEqual(code, 0)
+            self.assertEqual(stdout, "jev 0.3.2\n")
+            self.assertEqual(stderr, "")
 
         def test_success_uses_object_echo_and_real_score_enrichment(self):
             state = {"candidate": {"id": "ok"}}

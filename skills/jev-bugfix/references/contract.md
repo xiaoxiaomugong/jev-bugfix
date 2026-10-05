@@ -1,6 +1,6 @@
 # 评分输入与输出约定
 
-适用于 Python 3.9+、macOS/Linux 和本机 Jev CLI 0.3.2；不依赖另一个 skill，也不直接实现 Jev API 客户端。CLI 升级后重新核对 `--version`、`score --help` 和下述格式。无法核实时使用 Codex 本地调查。
+适用于 Python 3.9+、macOS/Linux 和本机 Jev CLI 0.3.2；不依赖另一个 skill，也不直接实现 Jev API 客户端。每次执行评分前，助手自动预检 `--version`；CLI 升级后还需重新核对 `score --help` 和下述格式。无法核实时使用 Codex 本地调查。
 
 ## 输入
 
@@ -44,7 +44,11 @@
 {"schema_version":1,"bug":{"description":"...","reproduction":{"steps":["..."],"expected":"...","actual":"..."},"stack_trace":[]},"candidate":{"id":"first","path":"src/first.py","start_line":1,"end_line":2,"snippet":"...","origins":["stack"]}}
 ```
 
-不发送 `reviewed_for_secrets` 和 `local_only`；无整库扫描、文件上传、日志上传或环境变量转储。标准输入传送 JSONL；subprocess 使用 argv，禁用 shell。准确命令为：
+不发送 `reviewed_for_secrets` 和 `local_only`；无整库扫描、文件上传、日志上传或环境变量转储。subprocess 使用 argv，禁用 shell。仅在执行模式、审核通过且存在可发送候选时，先运行 `jev --version`，标准输入为空，独立期限 2 秒、stdout+stderr 合计最多 1024 字节。只有 exit 0 且 stdout 精确为 `jev 0.3.2\n` 时才启动评分；缺失、未知版本、非零退出、超时、输出过量或启动后 I/O 异常均直接回退。默认 dry-run 和输入/预算阻断不启动版本预检。
+
+版本预检不携带 bug 或候选数据。已核实的 0.3.2 源码在版本分支、provider/凭据处理前直接返回；`tests/verify_local_cli.py` 用真实本机源码和配置、凭据、网络阻断器验证该行为。预检是本机 CLI 的版本声明检查，不是二进制真实性或服务端版本证明。
+
+评分通过标准输入传送 JSONL，准确命令为：
 
 ```sh
 jev score '<固定的相关性问题与 0–4 刻度说明>' --range 0-4 \
@@ -75,7 +79,7 @@ Jev 0.3.2 的成功 JSONL 行是 envelope（不是直接的 answer）：
 
 助手解析回显 input 的 candidate.id，并核对完整 state 等于原提交内容；错误回显先解析成 JSON。不要使用 `--field` 丢失身份。重复身份作废该候选；未知身份、畸形行或回显不一致记录诊断。每个未返回的候选标记 `missing_result`（超时或输出过大时记相应原因），不会当作零分。完整合法行可在其他行失败后保留。
 
-默认一次 CLI 评分调用、12 次逻辑评分、至多 24 次物理 HTTP 尝试，CLI 不暴露实际物理尝试数。`--retries 0` 关闭外层重试，但源码 `http_post` 会在复用连接失效后重新 POST 一次。该预算基于核实的 0.3.2，不适用于未知版本。`--timeout` 是 socket 超时，因此额外用 45 秒进程期限；stdout+stderr 收集上限合计 64 KiB，异常时终止进程组。`--batch-timeout` / `--request-timeout` 只能降低默认上限。
+默认一次 CLI 版本预检加一次评分调用、12 次逻辑评分、至多 24 次物理 HTTP 尝试，CLI 不暴露实际物理尝试数。`--retries 0` 关闭外层重试，但源码 `http_post` 会在复用连接失效后重新 POST 一次。该预算基于核实的 0.3.2；预检失败不启动评分，评分调用次数和 HTTP 上界均为 0。`--timeout` 是 socket 超时，因此评分额外用 45 秒进程期限；stdout+stderr 收集上限合计 64 KiB，异常时终止进程组并回收进程。版本预检与评分的期限分别为 2 秒和 45 秒，总期限最多 47 秒，另有启动/终止清理开销；实际端到端时间还需包含候选收集与后续调查。`--batch-timeout` / `--request-timeout` 只能降低评分默认上限。
 
 ## 助手输出
 
@@ -85,7 +89,8 @@ stdout 单个 JSON 对象，`schema_version: 1`：
 - `candidates`：每个输入候选的元数据、`must_inspect`（来源包含 stack）、`score`（数值或 null）、`label`（等级字符串或 null）、`confidence`（原始数值或 null）、`status`（`pending/scored/local_only/error`）、`error`（null 或 `{code,message}`）。未评分或结果失效时三个评分字段均为 null；低分项仍在列表中。
 - `investigation_order`：所有 ID，先 stack，随后未评分项按原序，再按分数降序；同分保持原序。全部回退时保留原序，但 stack 提前。
 - `diagnostics`：批次/解析问题的固定 code/message，原始错误内容被抑制。消息是助手事实，不是 Jev 的自由文本解释。
-- `usage`：`cli_invocations`（评分进程次数）、`submitted_candidates`（交给该进程的候选数）、`http_attempts_upper_bound`（预算预留，非实测）、`payload_bytes`（准备好的载荷大小）、`batch_timeout_seconds`、`request_timeout_seconds`。未启动 CLI 时前三者为 0；CLI 因缺凭据或提前终止而没有发出请求时，也会保留进程次数与预留预算，不能将其视为真实远程调用数。不报告未经测量的费用或收益。
+- `cli_preflight`：兼容扩展字段，含 `invocations`（实际启动的版本进程次数，0 或 1）、`version`（验证成功为 `"0.3.2"`，其他情况为 null）、`timeout_seconds`（2）、`output_limit_bytes`（1024）。版本进程未能启动时记录 `cli_missing` 且次数为 0；已启动但不能核实版本时次数为 1，诊断为 `cli_version_unverified`、`cli_version_timeout`、`cli_version_output_limit` 或 `cli_io_error`。仅接受已核实版本，未核实输出不回显。严格限制输出顶层字段的旧消费者需允许这一新增字段；输入严格 schema、已有 usage 字段与 `schema_version: 1` 保持不变。
+- `usage`：`cli_invocations`（评分进程次数，不含版本预检）、`submitted_candidates`（交给该进程的候选数）、`http_attempts_upper_bound`（预算预留，非实测）、`payload_bytes`（准备好的载荷大小）、`batch_timeout_seconds`、`request_timeout_seconds`。未启动评分进程时前三者为 0；评分进程启动后，即使 I/O 异常、缺凭据或提前终止而没有发出请求，也保留进程次数与预留预算，不能将其视为真实远程调用数。启动后 I/O 异常记为 `cli_io_error`，保留已收到的完整合法结果，其余候选本地调查。不报告未经测量的费用或收益。
 
 dry_run / ranked exit 0；partial / fallback exit 2。无效命令行参数由 argparse 返回 exit 2。回退不是修复失败，继续用 Codex 的复现与调用链调查。无效输入可能无法恢复元数据，此时候选为空，仍保留本地收集的原候选继续调查。
 
