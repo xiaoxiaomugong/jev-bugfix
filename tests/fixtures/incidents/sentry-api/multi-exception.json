@@ -1,0 +1,186 @@
+{
+  "id": "api-storage-id-different",
+  "eventID": "schema-fixture-event-1",
+  "groupID": "schema-fixture-group",
+  "projectID": "schema-fixture-project",
+  "message": "Synthetic API fixture; not a production incident",
+  "title": "ValueError: Bad synthetic input",
+  "location": "src/worker.py",
+  "culprit": "worker.run",
+  "type": "error",
+  "platform": "python",
+  "dateCreated": "2026-10-05T08:00:00Z",
+  "dateReceived": "2026-10-05T08:00:05Z",
+  "size": 1024,
+  "dist": null,
+  "user": {
+    "id": "schema-fixture-user"
+  },
+  "tags": [
+    {
+      "key": "environment",
+      "value": "production",
+      "query": "environment:production"
+    },
+    {
+      "key": "service",
+      "value": "worker",
+      "query": "service:worker"
+    }
+  ],
+  "entries": [
+    {
+      "type": "exception",
+      "data": {
+        "values": [
+          {
+            "type": "ValueError",
+            "value": "Bad synthetic input",
+            "module": "builtins",
+            "threadId": null,
+            "mechanism": {
+              "type": "generic",
+              "handled": false
+            },
+            "stacktrace": {
+              "frames": [
+                {
+                  "filename": "src/worker.py",
+                  "absPath": "/srv/schema-fixture/src/worker.py",
+                  "lineNo": 3,
+                  "colNo": null,
+                  "function": "run",
+                  "inApp": true,
+                  "module": "worker",
+                  "vars": null,
+                  "context": null,
+                  "sourceLink": null
+                },
+                {
+                  "filename": "src/parse.py",
+                  "absPath": "/srv/schema-fixture/src/parse.py",
+                  "lineNo": 7,
+                  "colNo": null,
+                  "function": "parse",
+                  "inApp": true,
+                  "module": "parse",
+                  "vars": null,
+                  "context": null,
+                  "sourceLink": null
+                }
+              ],
+              "framesOmitted": null,
+              "registers": null,
+              "hasSystemFrames": false
+            },
+            "rawStacktrace": null
+          },
+          {
+            "type": "RuntimeError",
+            "value": "Selected synthetic exception",
+            "module": "builtins",
+            "threadId": null,
+            "mechanism": {
+              "type": "generic",
+              "handled": false
+            },
+            "stacktrace": {
+              "frames": [
+                {
+                  "filename": "src/selected.py",
+                  "lineNo": 4,
+                  "function": "selected",
+                  "inApp": true
+                }
+              ],
+              "framesOmitted": null,
+              "registers": null,
+              "hasSystemFrames": false
+            },
+            "rawStacktrace": null
+          }
+        ],
+        "excOmitted": null,
+        "hasSystemFrames": false
+      }
+    },
+    {
+      "type": "breadcrumbs",
+      "data": {
+        "values": [
+          {
+            "timestamp": "2026-10-05T07:59:59Z",
+            "category": "application",
+            "level": "info",
+            "message": "Synthetic worker started",
+            "data": null,
+            "type": "default",
+            "event_id": null
+          }
+        ]
+      }
+    },
+    {
+      "type": "request",
+      "data": {
+        "url": "/schema-fixture",
+        "method": "GET",
+        "headers": [],
+        "cookies": [],
+        "data": null
+      }
+    }
+  ],
+  "release": {
+    "version": "deploy-1",
+    "shortVersion": "deploy-1",
+    "dateReleased": "2026-10-05T07:00:00Z",
+    "commitCount": 1,
+    "lastCommit": {
+      "id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    "lastDeploy": null,
+    "data": {},
+    "url": null
+  },
+  "contexts": {
+    "trace": {
+      "type": "trace",
+      "trace_id": "trace-fixture",
+      "span_id": "span-fixture",
+      "parent_span_id": "parent-fixture",
+      "op": "worker"
+    },
+    "runtime": {
+      "type": "runtime",
+      "name": "CPython",
+      "version": "3.9.20"
+    },
+    "os": {
+      "type": "os",
+      "name": "Linux",
+      "version": "6.1"
+    },
+    "device": {
+      "type": "device",
+      "arch": "x86_64"
+    }
+  },
+  "sdk": {
+    "name": "sentry.python",
+    "version": "2.0.0"
+  },
+  "packages": {},
+  "context": {},
+  "errors": [],
+  "fingerprints": [
+    "schema-fixture"
+  ],
+  "_meta": {
+    "user": null,
+    "entries": {},
+    "contexts": null,
+    "tags": {},
+    "sdk": null
+  }
+}

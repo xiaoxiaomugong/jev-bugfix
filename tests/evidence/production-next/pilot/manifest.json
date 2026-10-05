@@ -1,0 +1,139 @@
+{
+  "artifact_raw_hashes": {
+    "expected.json": {
+      "bytes": 1832,
+      "sha256": "2f85e0debdd39b2240f6d36329de3a535d9d4537eee2629669f64a12be9dc40a"
+    },
+    "minimal-fix.patch": {
+      "bytes": 967,
+      "sha256": "73d243aacf78888793b10961ce9d6e66141a667ba82151fa76f6f23aae1e66b0"
+    },
+    "rebuild_repo.py": {
+      "bytes": 4774,
+      "sha256": "49305ffad9c6904ee509416c9dad154d10fbbddf5996e7ba3a65497625b2c26e"
+    },
+    "regression_test.py": {
+      "bytes": 2059,
+      "sha256": "358f5ff21a7ca04956515f5b0966c2e9c1f8abaf9996fe0a9d54e84a8d9873e4"
+    },
+    "release-map.json": {
+      "bytes": 257,
+      "sha256": "35b100614c0a466b15079e42b2204c1c421b5c2fa58fc4bcedb792c85446463f"
+    },
+    "report.md": {
+      "bytes": 6831,
+      "sha256": "5149f68eb72d61c84ebd44d70169468e096fa5111131d38e4ac3080482787471"
+    },
+    "sentry-api-event.json": {
+      "bytes": 1841,
+      "sha256": "0a3fe057c6f0ac11d6d6853e8bb914f1bfb2e3252edf13e26308e0be9f8fb726"
+    },
+    "source/LICENSE.boltons": {
+      "bytes": 1497,
+      "sha256": "c301912653a8d8c99eab6212aa3aea8d164ea249d8ad53c941e0558a0a5ac1e3"
+    },
+    "source/broken/iterutils.py": {
+      "bytes": 59037,
+      "sha256": "c5cf8da7231fcb72f14f7f5507ff7c0b8778e5c495d69c596c4eb2ef48e8cfda"
+    },
+    "source/fixed/iterutils.py": {
+      "bytes": 59285,
+      "sha256": "77ec0e8d53b060f236d06f7c3c8ed107d34818dd8cf1b2a6b986bdea1167effe"
+    }
+  },
+  "classification": "oss_replay",
+  "event": {
+    "capture_timestamp": "2026-10-05T15:19:35.220103Z",
+    "in_app_convention": "True identifies code in the investigated repository; not deployment ownership.",
+    "input_format": "sentry-api-event/v1",
+    "observed_library_frame": {
+      "function": "backoff_iter",
+      "line": 651,
+      "path": "boltons/iterutils.py"
+    },
+    "omitted_harness_frames": 1,
+    "path": "sentry-api-event.json",
+    "release": "oss-replay/boltons/fixture-eb110f9",
+    "release_map": "release-map.json",
+    "timestamp_meaning": "Original local replay capture time, not historical production time.",
+    "trace": "not_observed"
+  },
+  "expectations": {
+    "behavior": "expected.json",
+    "candidate_count": 1,
+    "checkout_head": "60264f0eae8b171ac46c5ecbf487d1304c3570ab",
+    "context": {
+      "bytes": 3396,
+      "end_line": 697,
+      "sha256": "10d270331fbb637349aff0475ec34d835aa2c192bef71a8df12a9c210cf6342d",
+      "start_line": 605
+    },
+    "event_commit": "eb110f9f84ca0bdc0d9dac833d61859e15a3d527",
+    "inspect_status": "verified",
+    "prepare_diagnostics": [
+      "selected_trace_missing"
+    ],
+    "prepare_status": "ready",
+    "reviewed_for_secrets": false
+  },
+  "git": {
+    "fixture_commit_identity": {
+      "broken_timestamp": "2000-01-01T00:00:00Z",
+      "email": "fixture@example.invalid",
+      "fixed_timestamp": "2000-01-01T00:00:01Z",
+      "name": "Offline replay fixture"
+    },
+    "provenance": "deterministic_snapshot_fixture",
+    "rebuild_script": "rebuild_repo.py",
+    "revisions": {
+      "broken": {
+        "blob_oid": "4e7a37fcf06eca213359f19bcb462c1f33d1cb50",
+        "fixture_revision": "eb110f9f84ca0bdc0d9dac833d61859e15a3d527",
+        "source": "source/broken/iterutils.py",
+        "upstream_revision": "57cb026b7f47cd2765a0d5acdc83849ed5f1f6a3"
+      },
+      "fixed": {
+        "blob_oid": "f0590d44bbe564e67274e62e7fa5329f53a3f43c",
+        "fixture_revision": "60264f0eae8b171ac46c5ecbf487d1304c3570ab",
+        "source": "source/fixed/iterutils.py",
+        "upstream_revision": "ead236e278ca0466bf468de746b5960fb12d7e5b"
+      }
+    },
+    "snapshot_reconstruction": true,
+    "source_path": "boltons/iterutils.py",
+    "upstream_history": false
+  },
+  "independent_local_replay": {
+    "broken_failures": 3,
+    "fix_verification": "verified",
+    "fixed_failures": 0,
+    "patched_failures": 0,
+    "regression_attribution": "unknown",
+    "regression_reason": "No introducing commit or known-good earlier release was identified.",
+    "regression_tests": "regression_test.py",
+    "reproduction": "reproduced",
+    "root_cause": "confirmed",
+    "scope": "Six known-answer constant-backoff cases; not tool evidence status."
+  },
+  "known_answer": true,
+  "limitations": [
+    "No authorized real production event; production validation pending.",
+    "Reconstructed API-shaped event, not Sentry SDK/envelope/UI export.",
+    "Fixture commits are not upstream commits; no full upstream history retained in public assets.",
+    "Bundle verification is not source authentication, secret review, or fix verification.",
+    "Local verification uses macOS/CPython 3.14.6; other CI matrix runtimes untested locally.",
+    "No online Jev/Sentry requests; P1 remains 0/12."
+  ],
+  "nonblind": true,
+  "reconstructed_event": true,
+  "schema_version": 1,
+  "source": {
+    "fix_commit_url": "https://github.com/mahmoud/boltons/commit/ead236e278ca0466bf468de746b5960fb12d7e5b",
+    "later_issue": "https://github.com/mahmoud/boltons/issues/452",
+    "license": "BSD-3-Clause",
+    "license_copy": "source/LICENSE.boltons",
+    "public_bug_report": "https://github.com/mahmoud/boltons/pull/428",
+    "repository": "https://github.com/mahmoud/boltons",
+    "source_acquisition": "Pinned source bytes retained from the original 2026-10-05 local replay; not downloaded by this rebuild."
+  }
+}

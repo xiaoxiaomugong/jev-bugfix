@@ -2,6 +2,16 @@
 
 适用于 Python 3.9+、macOS/Linux 和本机 Jev CLI 0.3.2；不依赖另一个 skill，也不直接实现 Jev API 客户端。每次执行评分前，助手自动预检 `--version`；CLI 升级后还需重新核对 `score --help` 和下述格式。无法核实时使用 Codex 本地调查。
 
+## 本地事件准备层
+
+[production-evidence.md](production-evidence.md) 定义独立的 `production-events/v1` 导入、release-map、只读 Git 与 provenance 契约。`prepare_incident.py` 从本地事件生成下面已有的 V1 case，评分输入白名单、预算、排序和退出码保持不变。准备层不调用 Jev；它自己的 `ready/partial/needs_input/error` 与评分状态分开，不能表示根因或修复已经确认。
+
+本地 Sentry API 单事件使用 [sentry-event-import.md](sentry-event-import.md) 的显式 profile；case↔sidecar 的 `bundle.json` 与 `inspect_incident.py` 核验、历史上下文和人工补充重建规则见 production-evidence 契约。它们只作用于日志准备包，不改变普通手写 V1 case 或评分器的输入协议。
+
+`evidence.json` 和 `report.md` 在本地保留事件来源、版本核对、缺口和结论边界；不把 release、runtime 或 provenance 加进 V1，也不自动外发 sidecar。生成的 case 默认 `reviewed_for_secrets=false`，脱敏后仍须按原流程人工审核；秘密检测和 `local_only` 规则继续适用。
+
+V1 不带源码版本。日志候选的上下文阅读、符号搜索和调用关系核验必须继续使用 sidecar 中该 ID 绑定的 `event_commit`、blob OID、片段 SHA-256、路径/行范围与 evidence_refs；不能用事件行号直接读取 HEAD。缺 sidecar 时补齐来源，明确拟修改版本后再单独映射当前源码。只有显式提供的基线才形成 baseline→event 变化线索；HEAD 不默认是正常基线，变化相交不能单独证明回归因果。
+
 ## 输入
 
 助手读取 `--input` 指定的 UTF-8 JSON 文件，最多 64 KiB。候选的 `path` 是目标仓库相对路径，助手不会打开候选文件。必须人工检查片段、路径、行号及敏感信息。

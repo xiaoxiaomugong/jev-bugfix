@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "events": [
+    {
+      "event_id": "schema-fixture-event-1",
+      "timestamp": "2026-10-05T08:00:00Z",
+      "service": "worker",
+      "environment": "production",
+      "release": "deploy-1",
+      "commit": null,
+      "exception": {
+        "type": "ValueError",
+        "message": "Bad synthetic input",
+        "frames": [
+          {
+            "path": "src/worker.py",
+            "line": 3,
+            "function": "run",
+            "in_app": true
+          },
+          {
+            "path": "src/parse.py",
+            "line": 7,
+            "function": "parse",
+            "in_app": true
+          }
+        ]
+      },
+      "breadcrumbs": [
+        {
+          "timestamp": "2026-10-05T07:59:59Z",
+          "category": "application",
+          "level": "info",
+          "message": "Synthetic worker started"
+        }
+      ],
+      "trace": {
+        "trace_id": "trace-fixture",
+        "span_id": "span-fixture",
+        "parent_span_id": "parent-fixture",
+        "spans": []
+      },
+      "runtime": {
+        "language": "CPython",
+        "version": "3.9.20",
+        "os": "Linux",
+        "arch": null
+      }
+    }
+  ]
+}
