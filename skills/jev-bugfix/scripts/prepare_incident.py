@@ -2,6 +2,7 @@
 """Prepare local production-events/v1 evidence and an optional strict V1 case."""
 import argparse
 from datetime import datetime, timezone
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -19,6 +20,57 @@ import rank_candidates as ranker
 CONCLUSIONS = {'online_observation': 'imported_only', 'local_reproduction': 'not_attempted',
                'root_cause': 'hypothesis', 'fix_verification': 'unverified',
                'regression_attribution': 'unknown'}
+EVIDENCE_OUTPUT_LIMIT = 16 * 1024 * 1024
+BUNDLE_OUTPUT_LIMIT = 64 * 1024
+CASE_OUTPUT_LIMIT = 64 * 1024
+
+
+def load_bug_context(path):
+    """Only explicit bounded V1 bug fields can be supplemented; claims stay unverified."""
+    try:
+        with open(path, 'rb') as handle:
+            raw = handle.read(8193)
+        if len(raw) > 8192:
+            raise EvidenceError('bug_context_limit')
+        text = raw.decode('utf-8')
+        depth = 0
+        quoted = escaped = False
+        for character in text:
+            if quoted:
+                if escaped:
+                    escaped = False
+                elif character == '\\':
+                    escaped = True
+                elif character == '"':
+                    quoted = False
+            elif character == '"':
+                quoted = True
+            elif character in '[{':
+                depth += 1
+                if depth > 8:
+                    raise EvidenceError('bug_context_depth_limit')
+            elif character in ']}':
+                depth -= 1
+        value = ranker.strict_json(text)
+        if not isinstance(value, dict) or not value or set(value) - {'description', 'reproduction'}:
+            raise EvidenceError('bug_context_invalid')
+        # Reuse the unchanged V1 validator for exact field types and length limits.
+        stub = {'schema_version': 1, 'reviewed_for_secrets': False,
+                'bug': {'description': 'Unknown', 'reproduction': {
+                    'steps': ['No local reproduction'], 'expected': 'Unknown', 'actual': 'Unknown'},
+                    'stack_trace': []},
+                'candidates': [{'id': 'context_check', 'path': 'context.py', 'start_line': 1,
+                                'end_line': 1, 'snippet': 'pass', 'origins': ['rg']}]}
+        stub['bug'].update(value)
+        ranker.validate_case(stub)
+        if ranker.sensitive(value) or sanitize_value(value) != value:
+            raise EvidenceError('bug_context_sensitive')
+        return {'overrides': value, 'file_sha256': hashlib.sha256(raw).hexdigest(),
+                'fields': sorted(value), 'user_supplied_unverified': True}
+    except EvidenceError:
+        raise
+    except (OSError, ValueError, UnicodeError, RecursionError, TypeError):
+        raise EvidenceError('bug_context_invalid') from None
 
 
 def bounded_summary(value, maximum, field, omissions):
@@ -83,7 +135,22 @@ def build_evidence(args):
                 'budgets': {}, 'diagnostics': [], 'conclusions': dict(CONCLUSIONS)}
     case = None
     try:
-        normalized = load_events(args.input)
+        input_format = getattr(args, 'input_format', 'production-events/v1')
+        exception_index = getattr(args, 'exception_index', None)
+        service = getattr(args, 'service', None)
+        if input_format == 'production-events/v1':
+            if exception_index is not None or service is not None:
+                raise EvidenceError('input_format_arguments_invalid')
+            normalized = load_events(args.input)
+        elif input_format == 'sentry-api-event/v1':
+            from incident_sentry import load_sentry_api_event
+            normalized = load_sentry_api_event(args.input, exception_index, service)
+            evidence['import_provenance'] = normalized['import_provenance']
+        else:
+            raise EvidenceError('input_format_invalid')
+        context = load_bug_context(args.bug_context) if getattr(args, 'bug_context', None) else None
+        if context is not None:
+            evidence['bug_context'] = {key: context[key] for key in ('file_sha256', 'fields', 'user_supplied_unverified')}
         # Display IDs may collide after redaction; references use original array positions.
         for event in normalized['events']:
             event['event_ref'] = 'event_%03d' % event['provenance']['indices'][0]
@@ -97,7 +164,7 @@ def build_evidence(args):
             group['event_refs'] = [references[identifier] for identifier in group['event_ids']]
         evidence['diagnostics'].extend(selection['diagnostics'])
         selected = selection['selected']
-        if selected is None:
+        if selected is None or normalized.get('status') == 'needs_input':
             return sanitize_value(evidence), None
         evidence['selected_event'] = selected['event_id']
         evidence['selected_event_ref'] = selected['event_ref']
@@ -141,6 +208,8 @@ def build_evidence(args):
             evidence['status'] = 'needs_input'
             return sanitize_value(evidence), None
         case = make_case(selected, candidates, evidence['summary_omissions'])
+        if context is not None:
+            case['bug'].update(context['overrides'])
         raw_case = json.dumps(case, ensure_ascii=False, indent=2, allow_nan=False).encode('utf-8') + b'\n'
         budget_report = ranker.rank_case(case, SimpleNamespace(execute=False, batch_timeout=45, request_timeout=10))
         evidence['budgets'] = {'candidate_count': len(candidates), 'max_candidates': 12,
@@ -159,7 +228,8 @@ def build_evidence(args):
             incomplete = bool(evidence['unresolved_frames'] or
                               any(not entry['included_in_version_chain'] for entry in evidence['related_events']) or
                               any(version['checkout'].get(field) is None for field in ('head', 'staged', 'unstaged', 'untracked')) or
-                              version['checkout'].get('comparison') == 'unknown' or version['diagnostics'])
+                              version['checkout'].get('comparison') == 'unknown' or version['diagnostics'] or
+                              normalized.get('status') == 'partial' or normalized.get('incomplete'))
             if args.baseline_revision and (not version['baseline'] or version['baseline']['status'] != 'resolved'
                                           or version['baseline']['diagnostics']):
                 incomplete = True
@@ -190,6 +260,10 @@ def render_report(evidence):
     selected = next((event for event in evidence['events'] if event['event_ref'] == evidence['selected_event_ref']), None)
     section('代表事件与环境、release、实际异常', selected)
     section('各组与选择缺口', evidence['selection'])
+    if evidence.get('import_provenance'):
+        section('本地格式转换来源与完整性', evidence['import_provenance'])
+    if evidence.get('bug_context'):
+        section('人工补充来源；声明未经独立验证', evidence['bug_context'])
     section('事件版本与当前 checkout', evidence['version'])
     section('关联事件逐条版本核对', evidence['related_events'])
     section('实际导入顺序；缺时间项在后；不声明因果', evidence['timeline'])
@@ -225,17 +299,30 @@ def prepare_incident(args):
         else:
             output.mkdir(parents=True)
         evidence, case = build_evidence(args)
-        names = ['evidence.json', 'report.md'] + (['case.json'] if case is not None else [])
+        from incident_bundle import BundleError, make_bundle
+        try:
+            bundle = make_bundle(case, evidence) if case is not None else None
+            evidence_text = json.dumps(evidence, ensure_ascii=False, indent=2, allow_nan=False) + '\n'
+            case_text = json.dumps(case, ensure_ascii=False, indent=2, allow_nan=False) + '\n' if case is not None else None
+            bundle_text = json.dumps(bundle, ensure_ascii=False, indent=2, allow_nan=False) + '\n' if bundle is not None else None
+            if (len(evidence_text.encode('utf-8')) > EVIDENCE_OUTPUT_LIMIT or
+                    (case_text is not None and len(case_text.encode('utf-8')) > CASE_OUTPUT_LIMIT) or
+                    (bundle_text is not None and len(bundle_text.encode('utf-8')) > BUNDLE_OUTPUT_LIMIT)):
+                summary['diagnostics'] = ['artifact_output_limit']
+                return summary
+        except (BundleError, ValueError, UnicodeError):
+            summary['diagnostics'] = ['bundle_preparation_failed']
+            return summary
+        names = ['evidence.json', 'report.md'] + (['bundle.json', 'case.json'] if case is not None else [])
         installed = []
         try:
             with tempfile.TemporaryDirectory(prefix='.prepare-', dir=output) as staging:
                 stage = Path(staging)
-                (stage / 'evidence.json').write_text(json.dumps(evidence, ensure_ascii=False, indent=2,
-                                                               allow_nan=False) + '\n', encoding='utf-8')
+                (stage / 'evidence.json').write_text(evidence_text, encoding='utf-8')
                 (stage / 'report.md').write_text(render_report(evidence), encoding='utf-8')
                 if case is not None:
-                    (stage / 'case.json').write_text(json.dumps(case, ensure_ascii=False, indent=2,
-                                                               allow_nan=False) + '\n', encoding='utf-8')
+                    (stage / 'bundle.json').write_text(bundle_text, encoding='utf-8')
+                    (stage / 'case.json').write_text(case_text, encoding='utf-8')
                 for name in names:
                     # Avoid replacing an artifact created by another process since the initial empty check.
                     if (output / name).exists():
@@ -270,6 +357,11 @@ def main():
     parser.add_argument('--event-id')
     parser.add_argument('--source-root')
     parser.add_argument('--baseline-revision')
+    parser.add_argument('--bug-context')
+    parser.add_argument('--input-format', default='production-events/v1',
+                        choices=('production-events/v1', 'sentry-api-event/v1'))
+    parser.add_argument('--exception-index', type=int)
+    parser.add_argument('--service')
     report = prepare_incident(parser.parse_args())
     print(json.dumps(report, ensure_ascii=False, allow_nan=False))
     return 0 if report['status'] == 'ready' else 2

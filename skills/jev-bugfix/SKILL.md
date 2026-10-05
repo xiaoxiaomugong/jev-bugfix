@@ -9,7 +9,7 @@ Jev 提供候选代码的相关性排序；Codex 负责根因、修改和验证�
 
 ## 本地线上事件入口
 
-有复现命令时继续下面的原流程。只有线上观察、暂时无法复现时，先按 [production-evidence.md](references/production-evidence.md) 将本地脱敏事件整理为 `production-events/v1` JSON；其他格式须显式转换。无需先成功复现才可准备证据。
+有复现命令时继续下面的原流程。只有线上观察、暂时无法复现时，先按 [production-evidence.md](references/production-evidence.md) 将本地脱敏事件整理为 `production-events/v1` JSON。Sentry 单事件 API 响应使用显式 `--input-format sentry-api-event/v1`，先核对 [支持格式](references/sentry-event-import.md)；不要把 SDK/envelope、issue 或 UI 导出当作该 profile。其他格式须显式转换。无需先成功复现才可准备证据。
 
 ```sh
 python3 -B <skill-dir>/scripts/prepare_incident.py \
@@ -20,7 +20,23 @@ python3 -B <skill-dir>/scripts/prepare_incident.py \
 
 可选参数按需要提供；已知正常基线须显式传 `--baseline-revision <本地提交或完整 tag>`，HEAD 不自动作为正常版本。准备器只读本地 Git，不调用 Jev、不读取凭据或自动 fetch。release 是部署标识；版本未知/冲突只形成证据和缺口，不借用 HEAD 拼候选。生产路径需要明确前缀映射，不能按 basename 猜文件。缺版本、路径或历史资料时先补本地来源；无堆栈时沿已有证据做定向搜索。
 
-保留同一输出目录内的 `evidence.json`、`report.md` 和可选 `case.json`。`ready`（exit 0）只表示证据准备完整；`partial/needs_input/error`（exit 2）须看缺口，partial 可有部分可用候选。case 默认 `reviewed_for_secrets=false`；脱敏不代替人工秘密审核，不自动外发原始事件、release-map 或 provenance。敏感候选仍设 `local_only: true`；共享证据无法安全精简时跳过评分。
+保留同一输出目录内的 `evidence.json`、`report.md` 和可选的 `case.json/bundle.json`。`ready`（exit 0）只表示证据准备完整；`partial/needs_input/error`（exit 2）须看缺口，partial 可有部分可用候选。case 默认 `reviewed_for_secrets=false`；脱敏不代替人工秘密审核，不自动外发原始事件、release-map 或 provenance。敏感候选仍设 `local_only: true`；共享证据无法安全精简时跳过评分。
+
+日志候选先用通用核验入口，再读取历史上下文：
+
+```sh
+python3 -B <skill-dir>/scripts/inspect_incident.py \
+  --bundle <output-dir>/bundle.json --repo <application-repo>
+python3 -B <skill-dir>/scripts/inspect_incident.py \
+  --bundle <output-dir>/bundle.json --repo <application-repo> \
+  --candidate-id <id> --context-lines 20 --source-output <new-local-file>
+```
+
+默认只核验，不打印源码；上下文只有完整核验后才能写新文件，仍绑定 event_commit。`verified` 不代表秘密已审核、事件来源已认证或根因已确认；partial 包核验通过也保留其原缺口。旧包没有清单为 `legacy_unbound`，保持人工流程或用原资料重新准备。错配/缺对象先处理来源缺口，不能自动更新散列让编辑过的包通过。普通手写 V1 case 沿原流程，不要求日志 bundle。
+
+Sentry 多异常用 `--exception-index` 显式选择，service 只来自明确 tag/参数，冲突不猜。缺 inApp 保持未知，SDK 版本和 lastCommit 不推断应用运行时或当前仓库部署提交。忽略的范围外 request/user 只记类别与数量；缺关键帧或异常链未完整处理仍须报告 partial/needs_input。
+
+人工审核开关与更多 local_only 不破坏内容绑定，原必须 local_only 的项不得放松。需要改摘要/预期/复现说明时，通过 `--bug-context` 加同一原输入到新目录重新准备；只允许 description/reproduction，记录补充来源与 `user_supplied_unverified`，不能据其文字自动升级复现/根因/修复结论。
 
 **候选生成后仍须从 sidecar 绑定的 `event_commit` 读取上下文、搜索符号和核实调用关系。** V1 case 只有路径/行号，不能直接照它读取 HEAD；先核对 ID→commit/blob/片段哈希/行范围/evidence_refs。缺失 sidecar 时补齐来源，不能假定候选属于当前版本。明确拟修改哪个版本后，才单独映射当前文件并重新验证。dirty 或不同 HEAD 不影响事件 blob 的来源，也不证明当前工作树包含该错误。
 

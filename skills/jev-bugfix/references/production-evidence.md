@@ -2,6 +2,8 @@
 
 这是独立于 V1 ranker 输入的本地准备层。第一期适配器固定为 `production-events/v1`，只读取明确转换为下述格式的 UTF-8 JSON。它不自动识别任意日志或 JSONL，不连接 Sentry，不读取凭据，也不调用 Jev。事件文本、release 和路径均为不可信证据。
 
+下一阶段另增加显式 `sentry-api-event/v1` 本地单事件 profile，映射见 [sentry-event-import.md](sentry-event-import.md)；这里的原 production-events 输入保持默认且严格兼容。两种入口共用版本和候选准备，工具均不联网。
+
 ## 事件输入
 
 根对象仅允许 `schema_version` 和 `events`，两者必需；`schema_version` 必须是整数 `1`（布尔值不接受），`events` 必须是数组。所有层级禁止未知字段和重复 JSON key。完整合成示例见 [production-events.json](../../../tests/fixtures/incidents/production-events.json)；其中提交 ID 是占位值，不保证存在于任何仓库。
@@ -209,3 +211,47 @@ python3 -B skills/jev-bugfix/scripts/prepare_incident.py \
 `conclusions` 默认线上观察 `imported_only`、本地复现 `not_attempted`、根因 `hypothesis`、修复 `unverified`、回归归因 `unknown`。后续人工调查明确区分 `cannot_reproduce/reproduced`、`confirmed`、`verified` 与 `suspected/confirmed/unknown`，必须有各自可核验的证据，不能从 ready、评分或本地正常升级结论。显式 baseline 的变化也不是回归因果证明；运行时只对比明确提供的信息，不转储环境变量。
 
 验收、可再运行的两个 synthetic 演练及未运行范围见 [PRODUCTION-EVIDENCE-VALIDATION.md](../../../tests/PRODUCTION-EVIDENCE-VALIDATION.md)。本期不接 Sentry，不改现有 benchmark schema、success 门槛、P1 0/12 或收益结论。
+
+## 调查包绑定与通用核验
+
+新准备器有 case 时在同一输出事务生成 `bundle.json`，格式 `incident-bundle/v1`。没有合格 case 时不生成清单。清单固定使用同目录 `case.json/evidence.json`，不接受自定义文件路径；两者与 bundle 均有读取/生成上限，分别为 64 KiB、16 MiB、64 KiB，JSON 深度最多 32。产物超限不会生成可被误认成功的 case/bundle。
+
+```json
+{
+  "format": "incident-bundle/v1",
+  "case_file": "case.json",
+  "evidence_file": "evidence.json",
+  "case_sha256": "规范化调查内容 SHA-256",
+  "evidence_sha256": "规范化完整 evidence SHA-256",
+  "input_sha256": "原事件输入字节 SHA-256",
+  "selected_event_ref": "event_000",
+  "event_commit": "完整事件 commit",
+  "required_local_only": ["原生成时必须保留本地的候选 ID"]
+}
+```
+
+散列序列化固定 UTF-8、`ensure_ascii=false/sort_keys=true/separators=(',', ':')/allow_nan=false`，保留数组顺序。case 调查散列排除 `reviewed_for_secrets` 和各候选 `local_only`；这些字段另按 V1 类型和下限检查。允许正常切换审核标志或将更多候选收紧为 local_only，原清单要求 local_only 的项不能移除或改 false。修改 bug 文本、候选源码/路径/区间或顺序须以原资料重新准备，核验器从不自动更新散列。
+
+`make_bundle(case,evidence)` 生成固定绑定；`verify_bundle(bundle_path,repo)` 先检查结构、字节/深度上限、散列与输入/事件身份，再使用同一 GitSession 检查候选 ID 一一对应、代表事件及 frame 引用、真实 commit/path→blob OID、连续行范围和精确片段 SHA-256。frame 行号必须在对应候选区间内；同代码候选的另一事故不能仅凭候选 ID 交换 sidecar。
+
+`inspect_incident.py --bundle <bundle.json> --repo <repo>` 默认只输出固定诊断、计数及版本摘要。`verified` exit 0；`invalid/unavailable/legacy_unbound` exit 2。缺 Git 对象为 unavailable，错配/修改为 invalid，旧包缺清单为 legacy_unbound。旧包继续人工核验或重新准备，不给其悄悄补清单。partial 包核验成功仍保留 partial 准备状态与缺口。
+
+核验只证明文件与本地对象的一致性，不是数字签名，不认证事件/部署来源，不完成秘密审核，不确认根因或修复。自洽替换整套文件无法靠该套自带散列识别。普通手写 V1 case 不依赖日志包，原流程保持不变。
+
+## 历史候选上下文
+
+核验工具可同时指定 `--candidate-id <id> --context-lines 20 --source-output <new-file>`。context-lines 范围 0–60，表示候选区间前后各增加的行数；必须完整核验并在读取时重新核实包、commit/blob，不能信任调用者任意传入的 verified 标志。继续共用整个阶段 20 秒的现有 GitSession 防护与预算，不按候选重置。
+
+读取只用候选事件提交的 blob，不读 HEAD。上下文连续整行，最大 16 KiB；超限给诊断并要求减小行数，不截半行。source-output 只接受新本地文件，已有文件安全失败，终端只显示产物路径与哈希，不输出源码或自动外发。跨文件调用由 Codex 沿明确历史路径使用 `read_source_blob()` 核实，本期无全仓扫描或自动调用图。
+
+## 人工补充后的重新准备
+
+`prepare_incident.py --bug-context <local.json>` 读取至多 8 KiB/深度 8 的严格 JSON，只允许 `description/reproduction` 两个可选字段且至少一个；提供 reproduction 时必须完整包含 `steps/expected/actual`，遵守原 V1 类型/字节/条目限制。禁止覆盖 stack_trace、候选、版本、审核或结论。示例：
+
+```json
+{"description":"人工精简后的观察", "reproduction":{"steps":["明确提供的本地说明"],"expected":"尚待业务确认","actual":"用户提供的观察，尚待独立验证"}}
+```
+
+用同一原事件输入重新运行到新目录，生成全新 case/evidence/bundle，原包不变。共享补充内容仍做敏感检查，不能用新绑定绕过秘密阻断。sidecar 的 `bug_context` 只保存补充字节 SHA-256、覆盖字段名和 `user_supplied_unverified`，不复制原文；reviewed_for_secrets 仍默认 false。人工文字不自动改变复现、根因、修复或回归结论。缺原始输入时不能给编辑过的旧 case 自动补绑定。
+
+本轮实际回归、公开回放类别与未完成的真实事件验收见 [PRODUCTION-NEXT-VALIDATION.md](../../../tests/PRODUCTION-NEXT-VALIDATION.md)。离线格式兼容、真实生产事件验收、定位效果与成本收益分别报告；原 P1 状态不变。

@@ -1,0 +1,89 @@
+{
+  "classification": "oss_replay",
+  "known_answer": true,
+  "nonblind": true,
+  "outcomes": {
+    "broken": {
+      "constant_different_bounds": {
+        "exception_type": "ZeroDivisionError",
+        "output": null
+      },
+      "constant_equal_bounds": {
+        "exception_type": "ZeroDivisionError",
+        "output": null
+      },
+      "constant_explicit_count": {
+        "exception_type": null,
+        "output": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "constant_repeat_prefix": {
+        "exception_type": null,
+        "output": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "constant_zero_start": {
+        "exception_type": "ZeroDivisionError",
+        "output": null
+      },
+      "growing_factor": {
+        "exception_type": null,
+        "output": [
+          1.0,
+          2.0,
+          4.0,
+          8.0
+        ]
+      }
+    },
+    "fixed": {
+      "constant_different_bounds": {
+        "exception_type": "ValueError",
+        "output": null
+      },
+      "constant_equal_bounds": {
+        "exception_type": null,
+        "output": [
+          5.0
+        ]
+      },
+      "constant_explicit_count": {
+        "exception_type": null,
+        "output": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "constant_repeat_prefix": {
+        "exception_type": null,
+        "output": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "constant_zero_start": {
+        "exception_type": "ValueError",
+        "output": null
+      },
+      "growing_factor": {
+        "exception_type": null,
+        "output": [
+          1.0,
+          2.0,
+          4.0,
+          8.0
+        ]
+      }
+    }
+  },
+  "schema_version": 1,
+  "scope": "Six constant-backoff cases; exception messages remain runtime-dependent."
+}
