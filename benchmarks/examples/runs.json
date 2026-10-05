@@ -1,0 +1,2256 @@
+{
+  "schema_version": 1,
+  "development_fixture": true,
+  "real_experiment_runs": 0,
+  "independent_tasks": 3,
+  "runs": [
+    {
+      "schema_version": 1,
+      "case_id": "dev-case1",
+      "run_id": "A1",
+      "pair_id": "p1",
+      "arm": "A",
+      "development_fixture": true,
+      "repository": {
+        "url": "synthetic://fixture",
+        "revision": "buggy-v1"
+      },
+      "config": {
+        "model": "gpt-6.1-sol",
+        "reasoning": "fixed",
+        "prompt_hash": "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+        "tools_hash": "tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt",
+        "environment_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "budget_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "candidate_hash": null,
+      "timing": {
+        "started_at": "2026-10-02T00:00:00Z",
+        "finished_at": "2026-10-02T00:00:10Z",
+        "evidence": [
+          "benchmarks/examples/synthetic.log"
+        ],
+        "phases": {
+          "collection": {
+            "value": null,
+            "unit": "seconds",
+            "kind": "unavailable",
+            "source": null,
+            "evidence": [],
+            "completeness": "unavailable",
+            "reason": "runner has no export"
+          },
+          "preflight": {
+            "value": null,
+            "unit": "seconds",
+            "kind": "unavailable",
+            "source": null,
+            "evidence": [],
+            "completeness": "unavailable",
+            "reason": "runner has no export"
+          },
+          "scoring": {
+            "value": null,
+            "unit": "seconds",
+            "kind": "unavailable",
+            "source": null,
+            "evidence": [],
+            "completeness": "unavailable",
+            "reason": "runner has no export"
+          },
+          "investigation": {
+            "value": null,
+            "unit": "seconds",
+            "kind": "unavailable",
+            "source": null,
+            "evidence": [],
+            "completeness": "unavailable",
+            "reason": "runner has no export"
+          },
+          "repair": {
+            "value": null,
+            "unit": "seconds",
+            "kind": "unavailable",
+            "source": null,
+            "evidence": [],
+            "completeness": "unavailable",
+            "reason": "runner has no export"
+          },
+          "tests": {
+            "value": null,
+            "unit": "seconds",
+            "kind": "unavailable",
+            "source": null,
+            "evidence": [],
+            "completeness": "unavailable",
+            "reason": "runner has no export"
+          }
+        }
+      },
+      "capture": {
+        "complete": true,
+        "method": "explicit-source-events-v1",
+        "scope": "all model-visible source",
+        "reason": null,
+        "evidence": [
+          "benchmarks/examples/synthetic.log"
+        ]
+      },
+      "outcome": {
+        "status": "success",
+        "tests_unmodified": true,
+        "validations": [
+          {
+            "role": "reproduction_before",
+            "command": "python3 check.py",
+            "exit_code": 1,
+            "evidence": [
+              "benchmarks/examples/synthetic.log"
+            ]
+          },
+          {
+            "role": "reproduction_after",
+            "command": "python3 check.py",
+            "exit_code": 0,
+            "evidence": [
+              "benchmarks/examples/synthetic.log"
+            ]
+          },
+          {
+            "role": "independent",
+            "command": "python3 check.py",
+            "exit_code": 0,
+            "evidence": [
+              "benchmarks/examples/synthetic.log"
+            ]
+          },
+          {
+            "role": "regression",
+            "command": "python3 check.py",
+            "exit_code": 0,
+            "evidence": [
+              "benchmarks/examples/synthetic.log"
+            ]
+          }
+        ],
+        "reason": null
+      },
+      "usage": {
+        "input_tokens": {
+          "value": null,
+          "unit": "tokens",
+          "kind": "unavailable",
+          "source": null,
+          "evidence": [],
+          "completeness": "unavailable",
+          "reason": "runner has no export"
+        },
+        "cached_input_tokens": {
+          "value": null,
+          "unit": "tokens",
+          "kind": "unavailable",
+          "source": null,
+          "evidence": [],
+          "completeness": "unavailable",
+          "reason": "runner has no export"
+        },
+        "output_tokens": {
+          "value": null,
+          "unit": "tokens",
+          "kind": "unavailable",
+          "source": null,
+          "evidence": [],
+          "completeness": "unavailable",
+          "reason": "runner has no export"
+        },
+        "definitions": "not exported"
+      },
+      "costs": {
+        "currency": "USD",
+        "main_model": {
+          "value": null,
+          "unit": "USD",
+          "kind": "unavailable",
+          "source": null,
+          "evidence": [],
+          "completeness": "unavailable",
+          "reason": "synthetic fixture: no actual invoice"
+        },
+        "jev": {
+          "value": null,
+          "unit": "USD",
+          "kind": "unavailable",
+          "source": null,
+          "evidence": [],
+          "completeness": "unavailable",
+          "reason": "synthetic fixture: no actual invoice"
+        },
+        "review": {
+          "value": null,
+          "unit": "USD",
+          "kind": "unavailable",
+          "source": null,
+          "evidence": [],
+          "completeness": "unavailable",
+          "reason": "synthetic fixture: no actual invoice"
+        }
+      },
+      "jev": {
+        "version": null,
+        "ranker_revision": "fixed-v2",
+        "status": "not_used",
+        "failure_types": [],
+        "cli_invocations": {
+          "value": 0,
+          "unit": "count",
+          "kind": "measured",
+          "source": "synthetic_fixture",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        },
+        "preflight_invocations": {
+          "value": 0,
+          "unit": "count",
+          "kind": "measured",
+          "source": "synthetic_fixture",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        },
+        "submitted_candidates": {
+          "value": 0,
+          "unit": "count",
+          "kind": "measured",
+          "source": "synthetic_fixture",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        },
+        "payload_bytes": {
+          "value": 0,
+          "unit": "bytes",
+          "kind": "measured",
+          "source": "synthetic_fixture",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        },
+        "http_attempts_upper_bound": {
+          "value": 0,
+          "unit": "count",
+          "kind": "measured",
+          "source": "synthetic_fixture",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        }
+      },
+      "protocol_deviations": [],
+      "evidence": [
+        "benchmarks/examples/synthetic.log"
+      ],
+      "elapsed_seconds": {
+        "value": 10.0,
+        "unit": "seconds",
+        "kind": "derived",
+        "source": "task receipt to final verification",
+        "evidence": [
+          "benchmarks/examples/synthetic.log"
+        ],
+        "completeness": "complete",
+        "reason": null
+      },
+      "first_correct_root_seconds": {
+        "value": null,
+        "unit": "seconds",
+        "kind": "unavailable",
+        "source": null,
+        "evidence": [],
+        "completeness": "unavailable",
+        "reason": "no evaluator-verified root event"
+      },
+      "reading": {
+        "cumulative_bytes": {
+          "value": 120,
+          "unit": "bytes",
+          "kind": "derived",
+          "source": "normalized source_read events",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        },
+        "unique_lines": {
+          "value": 4,
+          "unit": "lines",
+          "kind": "derived",
+          "source": "union by path and file_version",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        },
+        "intervals": [
+          {
+            "path": "src/example.py",
+            "file_version": "f1",
+            "ranges": [
+              [
+                1,
+                4
+              ]
+            ]
+          }
+        ],
+        "capture": {
+          "complete": true,
+          "method": "explicit-source-events-v1",
+          "scope": "all model-visible source",
+          "reason": null,
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ]
+        }
+      },
+      "total_real_cost": {
+        "value": null,
+        "unit": "USD",
+        "kind": "unavailable",
+        "source": null,
+        "evidence": [],
+        "completeness": "unavailable",
+        "reason": "some components unavailable, incomplete or estimated"
+      },
+      "total_estimated_cost": {
+        "value": null,
+        "unit": "USD",
+        "kind": "unavailable",
+        "source": null,
+        "evidence": [],
+        "completeness": "unavailable",
+        "reason": "some components unavailable, incomplete or estimated"
+      }
+    },
+    {
+      "schema_version": 1,
+      "case_id": "dev-case1",
+      "run_id": "C1",
+      "pair_id": "p1",
+      "arm": "C",
+      "development_fixture": true,
+      "repository": {
+        "url": "synthetic://fixture",
+        "revision": "buggy-v1"
+      },
+      "config": {
+        "model": "gpt-6.1-sol",
+        "reasoning": "fixed",
+        "prompt_hash": "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+        "tools_hash": "tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt",
+        "environment_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "budget_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "candidate_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "timing": {
+        "started_at": "2026-10-02T00:00:00Z",
+        "finished_at": "2026-10-02T00:00:10Z",
+        "evidence": [
+          "benchmarks/examples/synthetic.log"
+        ],
+        "phases": {
+          "collection": {
+            "value": null,
+            "unit": "seconds",
+            "kind": "unavailable",
+            "source": null,
+            "evidence": [],
+            "completeness": "unavailable",
+            "reason": "runner has no export"
+          },
+          "preflight": {
+            "value": null,
+            "unit": "seconds",
+            "kind": "unavailable",
+            "source": null,
+            "evidence": [],
+            "completeness": "unavailable",
+            "reason": "runner has no export"
+          },
+          "scoring": {
+            "value": null,
+            "unit": "seconds",
+            "kind": "unavailable",
+            "source": null,
+            "evidence": [],
+            "completeness": "unavailable",
+            "reason": "runner has no export"
+          },
+          "investigation": {
+            "value": null,
+            "unit": "seconds",
+            "kind": "unavailable",
+            "source": null,
+            "evidence": [],
+            "completeness": "unavailable",
+            "reason": "runner has no export"
+          },
+          "repair": {
+            "value": null,
+            "unit": "seconds",
+            "kind": "unavailable",
+            "source": null,
+            "evidence": [],
+            "completeness": "unavailable",
+            "reason": "runner has no export"
+          },
+          "tests": {
+            "value": null,
+            "unit": "seconds",
+            "kind": "unavailable",
+            "source": null,
+            "evidence": [],
+            "completeness": "unavailable",
+            "reason": "runner has no export"
+          }
+        }
+      },
+      "capture": {
+        "complete": true,
+        "method": "explicit-source-events-v1",
+        "scope": "all model-visible source",
+        "reason": null,
+        "evidence": [
+          "benchmarks/examples/synthetic.log"
+        ]
+      },
+      "outcome": {
+        "status": "success",
+        "tests_unmodified": true,
+        "validations": [
+          {
+            "role": "reproduction_before",
+            "command": "python3 check.py",
+            "exit_code": 1,
+            "evidence": [
+              "benchmarks/examples/synthetic.log"
+            ]
+          },
+          {
+            "role": "reproduction_after",
+            "command": "python3 check.py",
+            "exit_code": 0,
+            "evidence": [
+              "benchmarks/examples/synthetic.log"
+            ]
+          },
+          {
+            "role": "independent",
+            "command": "python3 check.py",
+            "exit_code": 0,
+            "evidence": [
+              "benchmarks/examples/synthetic.log"
+            ]
+          },
+          {
+            "role": "regression",
+            "command": "python3 check.py",
+            "exit_code": 0,
+            "evidence": [
+              "benchmarks/examples/synthetic.log"
+            ]
+          }
+        ],
+        "reason": null
+      },
+      "usage": {
+        "input_tokens": {
+          "value": null,
+          "unit": "tokens",
+          "kind": "unavailable",
+          "source": null,
+          "evidence": [],
+          "completeness": "unavailable",
+          "reason": "runner has no export"
+        },
+        "cached_input_tokens": {
+          "value": null,
+          "unit": "tokens",
+          "kind": "unavailable",
+          "source": null,
+          "evidence": [],
+          "completeness": "unavailable",
+          "reason": "runner has no export"
+        },
+        "output_tokens": {
+          "value": null,
+          "unit": "tokens",
+          "kind": "unavailable",
+          "source": null,
+          "evidence": [],
+          "completeness": "unavailable",
+          "reason": "runner has no export"
+        },
+        "definitions": "not exported"
+      },
+      "costs": {
+        "currency": "USD",
+        "main_model": {
+          "value": 0.25,
+          "unit": "USD",
+          "kind": "estimated",
+          "source": "synthetic_fixture",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": "hypothetical fixture amount, not incurred cost",
+          "price": {
+            "date": "2026-10-02",
+            "source": "synthetic price, not vendor pricing",
+            "basis": "calculator test only; no actual usage"
+          }
+        },
+        "jev": {
+          "value": null,
+          "unit": "USD",
+          "kind": "unavailable",
+          "source": null,
+          "evidence": [],
+          "completeness": "unavailable",
+          "reason": "synthetic fixture: no actual invoice"
+        },
+        "review": {
+          "value": null,
+          "unit": "USD",
+          "kind": "unavailable",
+          "source": null,
+          "evidence": [],
+          "completeness": "unavailable",
+          "reason": "synthetic fixture: no actual invoice"
+        }
+      },
+      "jev": {
+        "version": "0.3.2",
+        "ranker_revision": "fixed-v2",
+        "status": "ranked",
+        "failure_types": [],
+        "cli_invocations": {
+          "value": 1,
+          "unit": "count",
+          "kind": "measured",
+          "source": "synthetic_fixture",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        },
+        "preflight_invocations": {
+          "value": 1,
+          "unit": "count",
+          "kind": "measured",
+          "source": "synthetic_fixture",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        },
+        "submitted_candidates": {
+          "value": 2,
+          "unit": "count",
+          "kind": "measured",
+          "source": "synthetic_fixture",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        },
+        "payload_bytes": {
+          "value": 120,
+          "unit": "bytes",
+          "kind": "measured",
+          "source": "synthetic_fixture",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        },
+        "http_attempts_upper_bound": {
+          "value": 4,
+          "unit": "count",
+          "kind": "measured",
+          "source": "synthetic_fixture",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        }
+      },
+      "protocol_deviations": [],
+      "evidence": [
+        "benchmarks/examples/synthetic.log"
+      ],
+      "elapsed_seconds": {
+        "value": 10.0,
+        "unit": "seconds",
+        "kind": "derived",
+        "source": "task receipt to final verification",
+        "evidence": [
+          "benchmarks/examples/synthetic.log"
+        ],
+        "completeness": "complete",
+        "reason": null
+      },
+      "first_correct_root_seconds": {
+        "value": null,
+        "unit": "seconds",
+        "kind": "unavailable",
+        "source": null,
+        "evidence": [],
+        "completeness": "unavailable",
+        "reason": "no evaluator-verified root event"
+      },
+      "reading": {
+        "cumulative_bytes": {
+          "value": 50,
+          "unit": "bytes",
+          "kind": "derived",
+          "source": "normalized source_read events",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        },
+        "unique_lines": {
+          "value": 4,
+          "unit": "lines",
+          "kind": "derived",
+          "source": "union by path and file_version",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        },
+        "intervals": [
+          {
+            "path": "src/example.py",
+            "file_version": "f1",
+            "ranges": [
+              [
+                1,
+                4
+              ]
+            ]
+          }
+        ],
+        "capture": {
+          "complete": true,
+          "method": "explicit-source-events-v1",
+          "scope": "all model-visible source",
+          "reason": null,
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ]
+        }
+      },
+      "total_real_cost": {
+        "value": null,
+        "unit": "USD",
+        "kind": "unavailable",
+        "source": null,
+        "evidence": [],
+        "completeness": "unavailable",
+        "reason": "some components unavailable, incomplete or estimated"
+      },
+      "total_estimated_cost": {
+        "value": null,
+        "unit": "USD",
+        "kind": "unavailable",
+        "source": null,
+        "evidence": [],
+        "completeness": "unavailable",
+        "reason": "some components unavailable, incomplete or estimated"
+      }
+    },
+    {
+      "schema_version": 1,
+      "case_id": "dev-case2",
+      "run_id": "A2",
+      "pair_id": "p2",
+      "arm": "A",
+      "development_fixture": true,
+      "repository": {
+        "url": "synthetic://fixture",
+        "revision": "buggy-v1"
+      },
+      "config": {
+        "model": "gpt-6.1-sol",
+        "reasoning": "fixed",
+        "prompt_hash": "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+        "tools_hash": "tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt",
+        "environment_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "budget_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "candidate_hash": null,
+      "timing": {
+        "started_at": "2026-10-02T00:00:00Z",
+        "finished_at": "2026-10-02T00:00:10Z",
+        "evidence": [
+          "benchmarks/examples/synthetic.log"
+        ],
+        "phases": {
+          "collection": {
+            "value": null,
+            "unit": "seconds",
+            "kind": "unavailable",
+            "source": null,
+            "evidence": [],
+            "completeness": "unavailable",
+            "reason": "runner has no export"
+          },
+          "preflight": {
+            "value": null,
+            "unit": "seconds",
+            "kind": "unavailable",
+            "source": null,
+            "evidence": [],
+            "completeness": "unavailable",
+            "reason": "runner has no export"
+          },
+          "scoring": {
+            "value": null,
+            "unit": "seconds",
+            "kind": "unavailable",
+            "source": null,
+            "evidence": [],
+            "completeness": "unavailable",
+            "reason": "runner has no export"
+          },
+          "investigation": {
+            "value": null,
+            "unit": "seconds",
+            "kind": "unavailable",
+            "source": null,
+            "evidence": [],
+            "completeness": "unavailable",
+            "reason": "runner has no export"
+          },
+          "repair": {
+            "value": null,
+            "unit": "seconds",
+            "kind": "unavailable",
+            "source": null,
+            "evidence": [],
+            "completeness": "unavailable",
+            "reason": "runner has no export"
+          },
+          "tests": {
+            "value": null,
+            "unit": "seconds",
+            "kind": "unavailable",
+            "source": null,
+            "evidence": [],
+            "completeness": "unavailable",
+            "reason": "runner has no export"
+          }
+        }
+      },
+      "capture": {
+        "complete": true,
+        "method": "explicit-source-events-v1",
+        "scope": "all model-visible source",
+        "reason": null,
+        "evidence": [
+          "benchmarks/examples/synthetic.log"
+        ]
+      },
+      "outcome": {
+        "status": "success",
+        "tests_unmodified": true,
+        "validations": [
+          {
+            "role": "reproduction_before",
+            "command": "python3 check.py",
+            "exit_code": 1,
+            "evidence": [
+              "benchmarks/examples/synthetic.log"
+            ]
+          },
+          {
+            "role": "reproduction_after",
+            "command": "python3 check.py",
+            "exit_code": 0,
+            "evidence": [
+              "benchmarks/examples/synthetic.log"
+            ]
+          },
+          {
+            "role": "independent",
+            "command": "python3 check.py",
+            "exit_code": 0,
+            "evidence": [
+              "benchmarks/examples/synthetic.log"
+            ]
+          },
+          {
+            "role": "regression",
+            "command": "python3 check.py",
+            "exit_code": 0,
+            "evidence": [
+              "benchmarks/examples/synthetic.log"
+            ]
+          }
+        ],
+        "reason": null
+      },
+      "usage": {
+        "input_tokens": {
+          "value": null,
+          "unit": "tokens",
+          "kind": "unavailable",
+          "source": null,
+          "evidence": [],
+          "completeness": "unavailable",
+          "reason": "runner has no export"
+        },
+        "cached_input_tokens": {
+          "value": null,
+          "unit": "tokens",
+          "kind": "unavailable",
+          "source": null,
+          "evidence": [],
+          "completeness": "unavailable",
+          "reason": "runner has no export"
+        },
+        "output_tokens": {
+          "value": null,
+          "unit": "tokens",
+          "kind": "unavailable",
+          "source": null,
+          "evidence": [],
+          "completeness": "unavailable",
+          "reason": "runner has no export"
+        },
+        "definitions": "not exported"
+      },
+      "costs": {
+        "currency": "USD",
+        "main_model": {
+          "value": null,
+          "unit": "USD",
+          "kind": "unavailable",
+          "source": null,
+          "evidence": [],
+          "completeness": "unavailable",
+          "reason": "synthetic fixture: no actual invoice"
+        },
+        "jev": {
+          "value": null,
+          "unit": "USD",
+          "kind": "unavailable",
+          "source": null,
+          "evidence": [],
+          "completeness": "unavailable",
+          "reason": "synthetic fixture: no actual invoice"
+        },
+        "review": {
+          "value": null,
+          "unit": "USD",
+          "kind": "unavailable",
+          "source": null,
+          "evidence": [],
+          "completeness": "unavailable",
+          "reason": "synthetic fixture: no actual invoice"
+        }
+      },
+      "jev": {
+        "version": null,
+        "ranker_revision": "fixed-v2",
+        "status": "not_used",
+        "failure_types": [],
+        "cli_invocations": {
+          "value": 0,
+          "unit": "count",
+          "kind": "measured",
+          "source": "synthetic_fixture",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        },
+        "preflight_invocations": {
+          "value": 0,
+          "unit": "count",
+          "kind": "measured",
+          "source": "synthetic_fixture",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        },
+        "submitted_candidates": {
+          "value": 0,
+          "unit": "count",
+          "kind": "measured",
+          "source": "synthetic_fixture",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        },
+        "payload_bytes": {
+          "value": 0,
+          "unit": "bytes",
+          "kind": "measured",
+          "source": "synthetic_fixture",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        },
+        "http_attempts_upper_bound": {
+          "value": 0,
+          "unit": "count",
+          "kind": "measured",
+          "source": "synthetic_fixture",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        }
+      },
+      "protocol_deviations": [],
+      "evidence": [
+        "benchmarks/examples/synthetic.log"
+      ],
+      "elapsed_seconds": {
+        "value": 10.0,
+        "unit": "seconds",
+        "kind": "derived",
+        "source": "task receipt to final verification",
+        "evidence": [
+          "benchmarks/examples/synthetic.log"
+        ],
+        "completeness": "complete",
+        "reason": null
+      },
+      "first_correct_root_seconds": {
+        "value": null,
+        "unit": "seconds",
+        "kind": "unavailable",
+        "source": null,
+        "evidence": [],
+        "completeness": "unavailable",
+        "reason": "no evaluator-verified root event"
+      },
+      "reading": {
+        "cumulative_bytes": {
+          "value": 120,
+          "unit": "bytes",
+          "kind": "derived",
+          "source": "normalized source_read events",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        },
+        "unique_lines": {
+          "value": 4,
+          "unit": "lines",
+          "kind": "derived",
+          "source": "union by path and file_version",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        },
+        "intervals": [
+          {
+            "path": "src/example.py",
+            "file_version": "f1",
+            "ranges": [
+              [
+                1,
+                4
+              ]
+            ]
+          }
+        ],
+        "capture": {
+          "complete": true,
+          "method": "explicit-source-events-v1",
+          "scope": "all model-visible source",
+          "reason": null,
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ]
+        }
+      },
+      "total_real_cost": {
+        "value": null,
+        "unit": "USD",
+        "kind": "unavailable",
+        "source": null,
+        "evidence": [],
+        "completeness": "unavailable",
+        "reason": "some components unavailable, incomplete or estimated"
+      },
+      "total_estimated_cost": {
+        "value": null,
+        "unit": "USD",
+        "kind": "unavailable",
+        "source": null,
+        "evidence": [],
+        "completeness": "unavailable",
+        "reason": "some components unavailable, incomplete or estimated"
+      }
+    },
+    {
+      "schema_version": 1,
+      "case_id": "dev-case2",
+      "run_id": "C2",
+      "pair_id": "p2",
+      "arm": "C",
+      "development_fixture": true,
+      "repository": {
+        "url": "synthetic://fixture",
+        "revision": "buggy-v1"
+      },
+      "config": {
+        "model": "gpt-6.1-sol",
+        "reasoning": "fixed",
+        "prompt_hash": "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+        "tools_hash": "tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt",
+        "environment_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "budget_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "candidate_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "timing": {
+        "started_at": "2026-10-02T00:00:00Z",
+        "finished_at": "2026-10-02T00:00:10Z",
+        "evidence": [
+          "benchmarks/examples/synthetic.log"
+        ],
+        "phases": {
+          "collection": {
+            "value": null,
+            "unit": "seconds",
+            "kind": "unavailable",
+            "source": null,
+            "evidence": [],
+            "completeness": "unavailable",
+            "reason": "runner has no export"
+          },
+          "preflight": {
+            "value": null,
+            "unit": "seconds",
+            "kind": "unavailable",
+            "source": null,
+            "evidence": [],
+            "completeness": "unavailable",
+            "reason": "runner has no export"
+          },
+          "scoring": {
+            "value": null,
+            "unit": "seconds",
+            "kind": "unavailable",
+            "source": null,
+            "evidence": [],
+            "completeness": "unavailable",
+            "reason": "runner has no export"
+          },
+          "investigation": {
+            "value": null,
+            "unit": "seconds",
+            "kind": "unavailable",
+            "source": null,
+            "evidence": [],
+            "completeness": "unavailable",
+            "reason": "runner has no export"
+          },
+          "repair": {
+            "value": null,
+            "unit": "seconds",
+            "kind": "unavailable",
+            "source": null,
+            "evidence": [],
+            "completeness": "unavailable",
+            "reason": "runner has no export"
+          },
+          "tests": {
+            "value": null,
+            "unit": "seconds",
+            "kind": "unavailable",
+            "source": null,
+            "evidence": [],
+            "completeness": "unavailable",
+            "reason": "runner has no export"
+          }
+        }
+      },
+      "capture": {
+        "complete": true,
+        "method": "explicit-source-events-v1",
+        "scope": "all model-visible source",
+        "reason": null,
+        "evidence": [
+          "benchmarks/examples/synthetic.log"
+        ]
+      },
+      "outcome": {
+        "status": "failure",
+        "tests_unmodified": true,
+        "validations": [
+          {
+            "role": "reproduction_before",
+            "command": "python3 check.py",
+            "exit_code": 1,
+            "evidence": [
+              "benchmarks/examples/synthetic.log"
+            ]
+          },
+          {
+            "role": "reproduction_after",
+            "command": "python3 check.py",
+            "exit_code": 0,
+            "evidence": [
+              "benchmarks/examples/synthetic.log"
+            ]
+          },
+          {
+            "role": "independent",
+            "command": "python3 check.py",
+            "exit_code": 0,
+            "evidence": [
+              "benchmarks/examples/synthetic.log"
+            ]
+          },
+          {
+            "role": "regression",
+            "command": "python3 check.py",
+            "exit_code": 0,
+            "evidence": [
+              "benchmarks/examples/synthetic.log"
+            ]
+          }
+        ],
+        "reason": null
+      },
+      "usage": {
+        "input_tokens": {
+          "value": null,
+          "unit": "tokens",
+          "kind": "unavailable",
+          "source": null,
+          "evidence": [],
+          "completeness": "unavailable",
+          "reason": "runner has no export"
+        },
+        "cached_input_tokens": {
+          "value": null,
+          "unit": "tokens",
+          "kind": "unavailable",
+          "source": null,
+          "evidence": [],
+          "completeness": "unavailable",
+          "reason": "runner has no export"
+        },
+        "output_tokens": {
+          "value": null,
+          "unit": "tokens",
+          "kind": "unavailable",
+          "source": null,
+          "evidence": [],
+          "completeness": "unavailable",
+          "reason": "runner has no export"
+        },
+        "definitions": "not exported"
+      },
+      "costs": {
+        "currency": "USD",
+        "main_model": {
+          "value": null,
+          "unit": "USD",
+          "kind": "unavailable",
+          "source": null,
+          "evidence": [],
+          "completeness": "unavailable",
+          "reason": "synthetic fixture: no actual invoice"
+        },
+        "jev": {
+          "value": null,
+          "unit": "USD",
+          "kind": "unavailable",
+          "source": null,
+          "evidence": [],
+          "completeness": "unavailable",
+          "reason": "synthetic fixture: no actual invoice"
+        },
+        "review": {
+          "value": null,
+          "unit": "USD",
+          "kind": "unavailable",
+          "source": null,
+          "evidence": [],
+          "completeness": "unavailable",
+          "reason": "synthetic fixture: no actual invoice"
+        }
+      },
+      "jev": {
+        "version": "0.3.2",
+        "ranker_revision": "fixed-v2",
+        "status": "ranked",
+        "failure_types": [],
+        "cli_invocations": {
+          "value": 1,
+          "unit": "count",
+          "kind": "measured",
+          "source": "synthetic_fixture",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        },
+        "preflight_invocations": {
+          "value": 1,
+          "unit": "count",
+          "kind": "measured",
+          "source": "synthetic_fixture",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        },
+        "submitted_candidates": {
+          "value": 2,
+          "unit": "count",
+          "kind": "measured",
+          "source": "synthetic_fixture",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        },
+        "payload_bytes": {
+          "value": 120,
+          "unit": "bytes",
+          "kind": "measured",
+          "source": "synthetic_fixture",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        },
+        "http_attempts_upper_bound": {
+          "value": 4,
+          "unit": "count",
+          "kind": "measured",
+          "source": "synthetic_fixture",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        }
+      },
+      "protocol_deviations": [],
+      "evidence": [
+        "benchmarks/examples/synthetic.log"
+      ],
+      "elapsed_seconds": {
+        "value": 10.0,
+        "unit": "seconds",
+        "kind": "derived",
+        "source": "task receipt to final verification",
+        "evidence": [
+          "benchmarks/examples/synthetic.log"
+        ],
+        "completeness": "complete",
+        "reason": null
+      },
+      "first_correct_root_seconds": {
+        "value": null,
+        "unit": "seconds",
+        "kind": "unavailable",
+        "source": null,
+        "evidence": [],
+        "completeness": "unavailable",
+        "reason": "no evaluator-verified root event"
+      },
+      "reading": {
+        "cumulative_bytes": {
+          "value": 50,
+          "unit": "bytes",
+          "kind": "derived",
+          "source": "normalized source_read events",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        },
+        "unique_lines": {
+          "value": 4,
+          "unit": "lines",
+          "kind": "derived",
+          "source": "union by path and file_version",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        },
+        "intervals": [
+          {
+            "path": "src/example.py",
+            "file_version": "f1",
+            "ranges": [
+              [
+                1,
+                4
+              ]
+            ]
+          }
+        ],
+        "capture": {
+          "complete": true,
+          "method": "explicit-source-events-v1",
+          "scope": "all model-visible source",
+          "reason": null,
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ]
+        }
+      },
+      "total_real_cost": {
+        "value": null,
+        "unit": "USD",
+        "kind": "unavailable",
+        "source": null,
+        "evidence": [],
+        "completeness": "unavailable",
+        "reason": "some components unavailable, incomplete or estimated"
+      },
+      "total_estimated_cost": {
+        "value": null,
+        "unit": "USD",
+        "kind": "unavailable",
+        "source": null,
+        "evidence": [],
+        "completeness": "unavailable",
+        "reason": "some components unavailable, incomplete or estimated"
+      }
+    },
+    {
+      "schema_version": 1,
+      "case_id": "dev-case3",
+      "run_id": "A3",
+      "pair_id": "p3",
+      "arm": "A",
+      "development_fixture": true,
+      "repository": {
+        "url": "synthetic://fixture",
+        "revision": "buggy-v1"
+      },
+      "config": {
+        "model": "gpt-6.1-sol",
+        "reasoning": "fixed",
+        "prompt_hash": "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+        "tools_hash": "tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt",
+        "environment_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "budget_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "candidate_hash": null,
+      "timing": {
+        "started_at": "2026-10-02T00:00:00Z",
+        "finished_at": "2026-10-02T00:00:10Z",
+        "evidence": [
+          "benchmarks/examples/synthetic.log"
+        ],
+        "phases": {
+          "collection": {
+            "value": null,
+            "unit": "seconds",
+            "kind": "unavailable",
+            "source": null,
+            "evidence": [],
+            "completeness": "unavailable",
+            "reason": "runner has no export"
+          },
+          "preflight": {
+            "value": null,
+            "unit": "seconds",
+            "kind": "unavailable",
+            "source": null,
+            "evidence": [],
+            "completeness": "unavailable",
+            "reason": "runner has no export"
+          },
+          "scoring": {
+            "value": null,
+            "unit": "seconds",
+            "kind": "unavailable",
+            "source": null,
+            "evidence": [],
+            "completeness": "unavailable",
+            "reason": "runner has no export"
+          },
+          "investigation": {
+            "value": null,
+            "unit": "seconds",
+            "kind": "unavailable",
+            "source": null,
+            "evidence": [],
+            "completeness": "unavailable",
+            "reason": "runner has no export"
+          },
+          "repair": {
+            "value": null,
+            "unit": "seconds",
+            "kind": "unavailable",
+            "source": null,
+            "evidence": [],
+            "completeness": "unavailable",
+            "reason": "runner has no export"
+          },
+          "tests": {
+            "value": null,
+            "unit": "seconds",
+            "kind": "unavailable",
+            "source": null,
+            "evidence": [],
+            "completeness": "unavailable",
+            "reason": "runner has no export"
+          }
+        }
+      },
+      "capture": {
+        "complete": true,
+        "method": "explicit-source-events-v1",
+        "scope": "all model-visible source",
+        "reason": null,
+        "evidence": [
+          "benchmarks/examples/synthetic.log"
+        ]
+      },
+      "outcome": {
+        "status": "success",
+        "tests_unmodified": true,
+        "validations": [
+          {
+            "role": "reproduction_before",
+            "command": "python3 check.py",
+            "exit_code": 1,
+            "evidence": [
+              "benchmarks/examples/synthetic.log"
+            ]
+          },
+          {
+            "role": "reproduction_after",
+            "command": "python3 check.py",
+            "exit_code": 0,
+            "evidence": [
+              "benchmarks/examples/synthetic.log"
+            ]
+          },
+          {
+            "role": "independent",
+            "command": "python3 check.py",
+            "exit_code": 0,
+            "evidence": [
+              "benchmarks/examples/synthetic.log"
+            ]
+          },
+          {
+            "role": "regression",
+            "command": "python3 check.py",
+            "exit_code": 0,
+            "evidence": [
+              "benchmarks/examples/synthetic.log"
+            ]
+          }
+        ],
+        "reason": null
+      },
+      "usage": {
+        "input_tokens": {
+          "value": null,
+          "unit": "tokens",
+          "kind": "unavailable",
+          "source": null,
+          "evidence": [],
+          "completeness": "unavailable",
+          "reason": "runner has no export"
+        },
+        "cached_input_tokens": {
+          "value": null,
+          "unit": "tokens",
+          "kind": "unavailable",
+          "source": null,
+          "evidence": [],
+          "completeness": "unavailable",
+          "reason": "runner has no export"
+        },
+        "output_tokens": {
+          "value": null,
+          "unit": "tokens",
+          "kind": "unavailable",
+          "source": null,
+          "evidence": [],
+          "completeness": "unavailable",
+          "reason": "runner has no export"
+        },
+        "definitions": "not exported"
+      },
+      "costs": {
+        "currency": "USD",
+        "main_model": {
+          "value": null,
+          "unit": "USD",
+          "kind": "unavailable",
+          "source": null,
+          "evidence": [],
+          "completeness": "unavailable",
+          "reason": "synthetic fixture: no actual invoice"
+        },
+        "jev": {
+          "value": null,
+          "unit": "USD",
+          "kind": "unavailable",
+          "source": null,
+          "evidence": [],
+          "completeness": "unavailable",
+          "reason": "synthetic fixture: no actual invoice"
+        },
+        "review": {
+          "value": null,
+          "unit": "USD",
+          "kind": "unavailable",
+          "source": null,
+          "evidence": [],
+          "completeness": "unavailable",
+          "reason": "synthetic fixture: no actual invoice"
+        }
+      },
+      "jev": {
+        "version": null,
+        "ranker_revision": "fixed-v2",
+        "status": "not_used",
+        "failure_types": [],
+        "cli_invocations": {
+          "value": 0,
+          "unit": "count",
+          "kind": "measured",
+          "source": "synthetic_fixture",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        },
+        "preflight_invocations": {
+          "value": 0,
+          "unit": "count",
+          "kind": "measured",
+          "source": "synthetic_fixture",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        },
+        "submitted_candidates": {
+          "value": 0,
+          "unit": "count",
+          "kind": "measured",
+          "source": "synthetic_fixture",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        },
+        "payload_bytes": {
+          "value": 0,
+          "unit": "bytes",
+          "kind": "measured",
+          "source": "synthetic_fixture",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        },
+        "http_attempts_upper_bound": {
+          "value": 0,
+          "unit": "count",
+          "kind": "measured",
+          "source": "synthetic_fixture",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        }
+      },
+      "protocol_deviations": [],
+      "evidence": [
+        "benchmarks/examples/synthetic.log"
+      ],
+      "elapsed_seconds": {
+        "value": 10.0,
+        "unit": "seconds",
+        "kind": "derived",
+        "source": "task receipt to final verification",
+        "evidence": [
+          "benchmarks/examples/synthetic.log"
+        ],
+        "completeness": "complete",
+        "reason": null
+      },
+      "first_correct_root_seconds": {
+        "value": null,
+        "unit": "seconds",
+        "kind": "unavailable",
+        "source": null,
+        "evidence": [],
+        "completeness": "unavailable",
+        "reason": "no evaluator-verified root event"
+      },
+      "reading": {
+        "cumulative_bytes": {
+          "value": 120,
+          "unit": "bytes",
+          "kind": "derived",
+          "source": "normalized source_read events",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        },
+        "unique_lines": {
+          "value": 4,
+          "unit": "lines",
+          "kind": "derived",
+          "source": "union by path and file_version",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        },
+        "intervals": [
+          {
+            "path": "src/example.py",
+            "file_version": "f1",
+            "ranges": [
+              [
+                1,
+                4
+              ]
+            ]
+          }
+        ],
+        "capture": {
+          "complete": true,
+          "method": "explicit-source-events-v1",
+          "scope": "all model-visible source",
+          "reason": null,
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ]
+        }
+      },
+      "total_real_cost": {
+        "value": null,
+        "unit": "USD",
+        "kind": "unavailable",
+        "source": null,
+        "evidence": [],
+        "completeness": "unavailable",
+        "reason": "some components unavailable, incomplete or estimated"
+      },
+      "total_estimated_cost": {
+        "value": null,
+        "unit": "USD",
+        "kind": "unavailable",
+        "source": null,
+        "evidence": [],
+        "completeness": "unavailable",
+        "reason": "some components unavailable, incomplete or estimated"
+      }
+    },
+    {
+      "schema_version": 1,
+      "case_id": "dev-case3",
+      "run_id": "C3",
+      "pair_id": "p3",
+      "arm": "C",
+      "development_fixture": true,
+      "repository": {
+        "url": "synthetic://fixture",
+        "revision": "buggy-v1"
+      },
+      "config": {
+        "model": "gpt-6.1-sol",
+        "reasoning": "fixed",
+        "prompt_hash": "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+        "tools_hash": "tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt",
+        "environment_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "budget_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "candidate_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "timing": {
+        "started_at": "2026-10-02T00:00:00Z",
+        "finished_at": "2026-10-02T00:00:10Z",
+        "evidence": [
+          "benchmarks/examples/synthetic.log"
+        ],
+        "phases": {
+          "collection": {
+            "value": null,
+            "unit": "seconds",
+            "kind": "unavailable",
+            "source": null,
+            "evidence": [],
+            "completeness": "unavailable",
+            "reason": "runner has no export"
+          },
+          "preflight": {
+            "value": null,
+            "unit": "seconds",
+            "kind": "unavailable",
+            "source": null,
+            "evidence": [],
+            "completeness": "unavailable",
+            "reason": "runner has no export"
+          },
+          "scoring": {
+            "value": null,
+            "unit": "seconds",
+            "kind": "unavailable",
+            "source": null,
+            "evidence": [],
+            "completeness": "unavailable",
+            "reason": "runner has no export"
+          },
+          "investigation": {
+            "value": null,
+            "unit": "seconds",
+            "kind": "unavailable",
+            "source": null,
+            "evidence": [],
+            "completeness": "unavailable",
+            "reason": "runner has no export"
+          },
+          "repair": {
+            "value": null,
+            "unit": "seconds",
+            "kind": "unavailable",
+            "source": null,
+            "evidence": [],
+            "completeness": "unavailable",
+            "reason": "runner has no export"
+          },
+          "tests": {
+            "value": null,
+            "unit": "seconds",
+            "kind": "unavailable",
+            "source": null,
+            "evidence": [],
+            "completeness": "unavailable",
+            "reason": "runner has no export"
+          }
+        }
+      },
+      "capture": {
+        "complete": false,
+        "method": "explicit-source-events-v1",
+        "scope": "all model-visible source",
+        "reason": "synthetic missing-tool example",
+        "evidence": [
+          "benchmarks/examples/synthetic.log"
+        ]
+      },
+      "outcome": {
+        "status": "success",
+        "tests_unmodified": true,
+        "validations": [
+          {
+            "role": "reproduction_before",
+            "command": "python3 check.py",
+            "exit_code": 1,
+            "evidence": [
+              "benchmarks/examples/synthetic.log"
+            ]
+          },
+          {
+            "role": "reproduction_after",
+            "command": "python3 check.py",
+            "exit_code": 0,
+            "evidence": [
+              "benchmarks/examples/synthetic.log"
+            ]
+          },
+          {
+            "role": "independent",
+            "command": "python3 check.py",
+            "exit_code": 0,
+            "evidence": [
+              "benchmarks/examples/synthetic.log"
+            ]
+          },
+          {
+            "role": "regression",
+            "command": "python3 check.py",
+            "exit_code": 0,
+            "evidence": [
+              "benchmarks/examples/synthetic.log"
+            ]
+          }
+        ],
+        "reason": null
+      },
+      "usage": {
+        "input_tokens": {
+          "value": null,
+          "unit": "tokens",
+          "kind": "unavailable",
+          "source": null,
+          "evidence": [],
+          "completeness": "unavailable",
+          "reason": "runner has no export"
+        },
+        "cached_input_tokens": {
+          "value": null,
+          "unit": "tokens",
+          "kind": "unavailable",
+          "source": null,
+          "evidence": [],
+          "completeness": "unavailable",
+          "reason": "runner has no export"
+        },
+        "output_tokens": {
+          "value": null,
+          "unit": "tokens",
+          "kind": "unavailable",
+          "source": null,
+          "evidence": [],
+          "completeness": "unavailable",
+          "reason": "runner has no export"
+        },
+        "definitions": "not exported"
+      },
+      "costs": {
+        "currency": "USD",
+        "main_model": {
+          "value": null,
+          "unit": "USD",
+          "kind": "unavailable",
+          "source": null,
+          "evidence": [],
+          "completeness": "unavailable",
+          "reason": "synthetic fixture: no actual invoice"
+        },
+        "jev": {
+          "value": null,
+          "unit": "USD",
+          "kind": "unavailable",
+          "source": null,
+          "evidence": [],
+          "completeness": "unavailable",
+          "reason": "synthetic fixture: no actual invoice"
+        },
+        "review": {
+          "value": null,
+          "unit": "USD",
+          "kind": "unavailable",
+          "source": null,
+          "evidence": [],
+          "completeness": "unavailable",
+          "reason": "synthetic fixture: no actual invoice"
+        }
+      },
+      "jev": {
+        "version": "0.3.2",
+        "ranker_revision": "fixed-v2",
+        "status": "ranked",
+        "failure_types": [],
+        "cli_invocations": {
+          "value": 1,
+          "unit": "count",
+          "kind": "measured",
+          "source": "synthetic_fixture",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        },
+        "preflight_invocations": {
+          "value": 1,
+          "unit": "count",
+          "kind": "measured",
+          "source": "synthetic_fixture",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        },
+        "submitted_candidates": {
+          "value": 2,
+          "unit": "count",
+          "kind": "measured",
+          "source": "synthetic_fixture",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        },
+        "payload_bytes": {
+          "value": 120,
+          "unit": "bytes",
+          "kind": "measured",
+          "source": "synthetic_fixture",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        },
+        "http_attempts_upper_bound": {
+          "value": 4,
+          "unit": "count",
+          "kind": "measured",
+          "source": "synthetic_fixture",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "complete",
+          "reason": null
+        }
+      },
+      "protocol_deviations": [],
+      "evidence": [
+        "benchmarks/examples/synthetic.log"
+      ],
+      "elapsed_seconds": {
+        "value": 10.0,
+        "unit": "seconds",
+        "kind": "derived",
+        "source": "task receipt to final verification",
+        "evidence": [
+          "benchmarks/examples/synthetic.log"
+        ],
+        "completeness": "complete",
+        "reason": null
+      },
+      "first_correct_root_seconds": {
+        "value": null,
+        "unit": "seconds",
+        "kind": "unavailable",
+        "source": null,
+        "evidence": [],
+        "completeness": "unavailable",
+        "reason": "no evaluator-verified root event"
+      },
+      "reading": {
+        "cumulative_bytes": {
+          "value": 50,
+          "unit": "bytes",
+          "kind": "derived",
+          "source": "normalized source_read events",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "lower_bound",
+          "reason": "synthetic missing-tool example"
+        },
+        "unique_lines": {
+          "value": 4,
+          "unit": "lines",
+          "kind": "derived",
+          "source": "union by path and file_version",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ],
+          "completeness": "lower_bound",
+          "reason": "synthetic missing-tool example"
+        },
+        "intervals": [
+          {
+            "path": "src/example.py",
+            "file_version": "f1",
+            "ranges": [
+              [
+                1,
+                4
+              ]
+            ]
+          }
+        ],
+        "capture": {
+          "complete": false,
+          "method": "explicit-source-events-v1",
+          "scope": "all model-visible source",
+          "reason": "synthetic missing-tool example",
+          "evidence": [
+            "benchmarks/examples/synthetic.log"
+          ]
+        }
+      },
+      "total_real_cost": {
+        "value": null,
+        "unit": "USD",
+        "kind": "unavailable",
+        "source": null,
+        "evidence": [],
+        "completeness": "unavailable",
+        "reason": "some components unavailable, incomplete or estimated"
+      },
+      "total_estimated_cost": {
+        "value": null,
+        "unit": "USD",
+        "kind": "unavailable",
+        "source": null,
+        "evidence": [],
+        "completeness": "unavailable",
+        "reason": "some components unavailable, incomplete or estimated"
+      }
+    }
+  ],
+  "pairs": [
+    {
+      "pair_id": "p1",
+      "case_id": "dev-case1",
+      "run_ids": {
+        "A": "A1",
+        "C": "C1"
+      },
+      "both_successful": true,
+      "elapsed_seconds_delta": 0.0,
+      "reading_bytes_delta": -70,
+      "reading_reduction": 0.5833333333333334,
+      "real_cost_delta": null,
+      "excluded_reasons": [
+        "missing total_real_cost"
+      ]
+    },
+    {
+      "pair_id": "p2",
+      "case_id": "dev-case2",
+      "run_ids": {
+        "A": "A2",
+        "C": "C2"
+      },
+      "both_successful": false,
+      "elapsed_seconds_delta": null,
+      "reading_bytes_delta": null,
+      "reading_reduction": null,
+      "real_cost_delta": null,
+      "excluded_reasons": [
+        "not both successful; retained in arm totals"
+      ]
+    },
+    {
+      "pair_id": "p3",
+      "case_id": "dev-case3",
+      "run_ids": {
+        "A": "A3",
+        "C": "C3"
+      },
+      "both_successful": true,
+      "elapsed_seconds_delta": 0.0,
+      "reading_bytes_delta": null,
+      "reading_reduction": null,
+      "real_cost_delta": null,
+      "excluded_reasons": [
+        "missing total_real_cost",
+        "incomplete or incomparable source capture"
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "case_id": "dev-case1",
+      "pairs": 1,
+      "development_fixture": true,
+      "elapsed_seconds_delta": 0.0,
+      "reading_bytes_delta": -70,
+      "reading_reduction": 0.5833333333333334,
+      "real_cost_delta": null,
+      "joint_comparable_pairs": [
+        "p1"
+      ],
+      "joint_reading_reduction": 0.5833333333333334,
+      "joint_elapsed_seconds_delta": 0.0
+    },
+    {
+      "case_id": "dev-case2",
+      "pairs": 1,
+      "development_fixture": true,
+      "elapsed_seconds_delta": null,
+      "reading_bytes_delta": null,
+      "reading_reduction": null,
+      "real_cost_delta": null,
+      "joint_comparable_pairs": [],
+      "joint_reading_reduction": null,
+      "joint_elapsed_seconds_delta": null
+    },
+    {
+      "case_id": "dev-case3",
+      "pairs": 1,
+      "development_fixture": true,
+      "elapsed_seconds_delta": 0.0,
+      "reading_bytes_delta": null,
+      "reading_reduction": null,
+      "real_cost_delta": null,
+      "joint_comparable_pairs": [],
+      "joint_reading_reduction": null,
+      "joint_elapsed_seconds_delta": null
+    }
+  ],
+  "arms": {
+    "A": {
+      "total_runs": 3,
+      "successes": 3,
+      "success_rate": 1.0,
+      "total_real_cost": null,
+      "known_cost_subtotal": 0,
+      "cost_per_success": null,
+      "cost_per_success_reason": "zero successes or incomplete actual cost",
+      "jev_status_counts": {
+        "not_used": 3,
+        "ranked": 0,
+        "partial": 0,
+        "fallback": 0,
+        "unavailable": 0
+      }
+    },
+    "C": {
+      "total_runs": 3,
+      "successes": 2,
+      "success_rate": 0.6666666666666666,
+      "total_real_cost": null,
+      "known_cost_subtotal": 0,
+      "cost_per_success": null,
+      "cost_per_success_reason": "zero successes or incomplete actual cost",
+      "jev_status_counts": {
+        "not_used": 0,
+        "ranked": 3,
+        "partial": 0,
+        "fallback": 0,
+        "unavailable": 0
+      }
+    }
+  },
+  "real_arms": {
+    "A": {
+      "total_runs": 0,
+      "successes": 0,
+      "success_rate": null,
+      "total_real_cost": null,
+      "known_cost_subtotal": 0,
+      "cost_per_success": null,
+      "cost_per_success_reason": "zero successes or incomplete actual cost",
+      "jev_status_counts": {
+        "not_used": 0,
+        "ranked": 0,
+        "partial": 0,
+        "fallback": 0,
+        "unavailable": 0
+      }
+    },
+    "C": {
+      "total_runs": 0,
+      "successes": 0,
+      "success_rate": null,
+      "total_real_cost": null,
+      "known_cost_subtotal": 0,
+      "cost_per_success": null,
+      "cost_per_success_reason": "zero successes or incomplete actual cost",
+      "jev_status_counts": {
+        "not_used": 0,
+        "ranked": 0,
+        "partial": 0,
+        "fallback": 0,
+        "unavailable": 0
+      }
+    }
+  },
+  "task_statistics": {
+    "elapsed_seconds_delta": {
+      "n_tasks": 2,
+      "median": 0.0,
+      "min": 0.0,
+      "max": 0.0,
+      "wins": 0,
+      "ties": 2,
+      "losses": 0
+    },
+    "reading_bytes_delta": {
+      "n_tasks": 1,
+      "median": -70,
+      "min": -70,
+      "max": -70,
+      "wins": 1,
+      "ties": 0,
+      "losses": 0
+    },
+    "real_cost_delta": {
+      "n_tasks": 0,
+      "median": null,
+      "min": null,
+      "max": null,
+      "wins": 0,
+      "ties": 0,
+      "losses": 0
+    }
+  },
+  "benefit_evidence": {
+    "status": "insufficient_evidence",
+    "reason": "fewer than six complete comparable real tasks",
+    "eligible_real_tasks": 0,
+    "cost_target": "unavailable",
+    "scope": "exploratory targets only; no general savings or quality noninferiority claim"
+  },
+  "limitations": [
+    "Normalized sources/completeness are declarations requiring evaluator audit.",
+    "Development fixtures do not establish real benefits.",
+    "Reading bytes include repeated exposure; unique lines use path plus file version.",
+    "Estimated prices, HTTP upper bounds and subscription percentages are not bills."
+  ]
+}

@@ -1,0 +1,3 @@
+DEVELOPMENT FIXTURE ONLY. Inputs are constructed by tests/test_benchmark.py helpers.
+No repository repair, model/API usage, invoice or real benefit was observed.
+All timestamps, exposure events and estimated amounts in this example are synthetic calculator inputs.
