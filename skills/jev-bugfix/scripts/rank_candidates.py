@@ -15,6 +15,9 @@ import time
 INPUT_LIMIT = 65536
 PAYLOAD_LIMIT = 24576
 OUTPUT_LIMIT = 65536
+VERSION_TIMEOUT = 2.0
+VERSION_OUTPUT_LIMIT = 1024
+VERIFIED_JEV_VERSION = "0.3.2"
 MAX_CANDIDATES = 12
 QUESTION = (
     "Rate how relevant the supplied candidate code is to investigating the stated bug, "
@@ -43,6 +46,10 @@ MESSAGES = {
     "local_only": "Candidate is explicitly restricted to local investigation.",
     "no_remote_candidates": "No candidates are eligible for external scoring.",
     "cli_missing": "Jev executable is unavailable; continue local investigation.",
+    "cli_io_error": "Jev process started but local I/O failed; raw error suppressed.",
+    "cli_version_unverified": "Jev version is not verified as 0.3.2; no scoring was started.",
+    "cli_version_timeout": "Jev version check exceeded 2 seconds; no scoring was started.",
+    "cli_version_output_limit": "Jev version output exceeded 1 KiB; no scoring was started.",
     "cli_failed": "Jev returned a nonzero exit; raw output suppressed.",
     "credentials_missing": "Jev credentials are unavailable; continue local investigation.",
     "authentication_error": "Jev authentication failed; continue local investigation.",
@@ -221,7 +228,7 @@ def classify_error(raw):
     return "jev_error"
 
 
-def run_batch(command, payload, timeout):
+def run_batch(command, payload, timeout, output_limit=OUTPUT_LIMIT):
     """Pump capped pipes without blocking on stdin; kill the process group at deadline."""
     process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE, start_new_session=True)
@@ -229,9 +236,9 @@ def run_batch(command, payload, timeout):
     sent = 0
     stop = None
     deadline = time.monotonic() + timeout
-    with selectors.DefaultSelector() as selector:
-        streams = (process.stdin, process.stdout, process.stderr)
-        try:
+    streams = (process.stdin, process.stdout, process.stderr)
+    try:
+        with selectors.DefaultSelector() as selector:
             for stream in streams:
                 os.set_blocking(stream.fileno(), False)
             selector.register(process.stdin, selectors.EVENT_WRITE, "input")
@@ -258,7 +265,7 @@ def run_batch(command, payload, timeout):
                             selector.unregister(stream)
                             stream.close()
                             continue
-                        available = OUTPUT_LIMIT - len(stdout) - len(stderr)
+                        available = output_limit - len(stdout) - len(stderr)
                         target = stdout if key.data == "output" else stderr
                         target.extend(chunk[:available])
                         if len(chunk) > available:
@@ -271,15 +278,21 @@ def run_batch(command, payload, timeout):
                     process.wait(timeout=max(0.001, deadline - time.monotonic()))
                 except subprocess.TimeoutExpired:
                     stop = "timeout"
-        finally:
-            if stop or process.poll() is None:
-                try:
-                    os.killpg(process.pid, signal.SIGKILL)
-                except ProcessLookupError:
-                    pass
-            for stream in streams:
+    except OSError:
+        # Popen succeeded: keep the started invocation and any complete results.
+        stop = "cli_io_error"
+    finally:
+        if stop or process.poll() is None:
+            try:
+                os.killpg(process.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+        for stream in streams:
+            try:
                 stream.close()
-            process.wait()
+            except OSError:
+                stop = stop or "cli_io_error"
+        process.wait()
     return bytes(stdout), bytes(stderr), process.returncode, stop
 
 
@@ -356,6 +369,9 @@ def rank_case(case, args):
     report = {
         "schema_version": 1, "status": "dry_run", "candidates": [],
         "investigation_order": [], "diagnostics": [],
+        "cli_preflight": {"invocations": 0, "version": None,
+                          "timeout_seconds": VERSION_TIMEOUT,
+                          "output_limit_bytes": VERSION_OUTPUT_LIMIT},
         "usage": {"cli_invocations": 0, "submitted_candidates": 0,
                   "http_attempts_upper_bound": 0, "payload_bytes": 0,
                   "batch_timeout_seconds": args.batch_timeout,
@@ -398,6 +414,18 @@ def rank_case(case, args):
         return report
     if not case["reviewed_for_secrets"]:
         return fallback(report, "not_reviewed")
+    try:
+        stdout, _, returncode, stop = run_batch(
+            [args.jev, "--version"], b"", VERSION_TIMEOUT, VERSION_OUTPUT_LIMIT)
+    except OSError:
+        return fallback(report, "cli_missing")
+    report["cli_preflight"]["invocations"] = 1
+    if stop:
+        return fallback(report, {"timeout": "cli_version_timeout",
+                                 "output_limit": "cli_version_output_limit"}.get(stop, stop))
+    if returncode or stdout != b"jev 0.3.2\n":
+        return fallback(report, "cli_version_unverified")
+    report["cli_preflight"]["version"] = VERIFIED_JEV_VERSION
     command = [args.jev, "score", QUESTION, "--range", "0-4", "--lines", "--json",
                "--jobs", "2", "--retries", "0", "--timeout", str(args.request_timeout)]
     try:
@@ -454,7 +482,7 @@ def bounded_timeout(maximum):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", required=True, help="Structured UTF-8 case JSON (max 64 KiB)")
-    parser.add_argument("--execute", action="store_true", help="Call the installed Jev CLI once")
+    parser.add_argument("--execute", action="store_true", help="Verify Jev version, then score once")
     parser.add_argument("--jev", default="jev", help="Installed Jev executable (default: PATH)")
     parser.add_argument("--batch-timeout", type=bounded_timeout(45), default=45.0)
     parser.add_argument("--request-timeout", type=bounded_timeout(10), default=10.0)

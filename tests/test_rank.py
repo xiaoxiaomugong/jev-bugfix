@@ -71,6 +71,7 @@ class RankCandidatesCLI(unittest.TestCase):
         shutil.copyfile(FIXTURE, self.fake)
         self.fake.chmod(0o755)
         self.log = self.work / "calls.jsonl"
+        self.preflight_calls = []
 
     def run_helper(self, data=None, *, execute=False, mode="success", extra=(),
                    env_extra=None, raw=None, executable=None):
@@ -98,6 +99,8 @@ class RankCandidatesCLI(unittest.TestCase):
         if self.log.exists():
             calls = [json.loads(line) for line in self.log.read_text(
                 encoding="utf-8").splitlines()]
+        self.preflight_calls = [call for call in calls if call["argv"] == ["--version"]]
+        calls = [call for call in calls if call["argv"] != ["--version"]]
         try:
             report = json.loads(completed.stdout)
         except json.JSONDecodeError:
@@ -112,6 +115,9 @@ class RankCandidatesCLI(unittest.TestCase):
         self.assertEqual(set(report["usage"]), {
             "cli_invocations", "submitted_candidates", "http_attempts_upper_bound",
             "payload_bytes", "batch_timeout_seconds", "request_timeout_seconds",
+        })
+        self.assertEqual(set(report.get("cli_preflight", {})), {
+            "invocations", "version", "timeout_seconds", "output_limit_bytes",
         })
         for diagnostic in report["diagnostics"]:
             self.assertEqual(set(diagnostic), {"code", "message"})
@@ -144,6 +150,9 @@ class RankCandidatesCLI(unittest.TestCase):
         self.assertEqual(completed.returncode, 0 if status == "dry_run" else 2)
         self.assertEqual(report["status"], status)
         self.assertEqual(calls, [])
+        self.assertEqual(self.preflight_calls, [])
+        self.assertEqual(report["cli_preflight"]["invocations"], 0)
+        self.assertIsNone(report["cli_preflight"]["version"])
         self.assertEqual(report["usage"]["cli_invocations"], 0)
         self.assertEqual(report["usage"]["submitted_candidates"], 0)
         self.assertEqual(report["usage"]["http_attempts_upper_bound"], 0)
@@ -175,6 +184,13 @@ class RankCandidatesCLI(unittest.TestCase):
         self.assertEqual(completed.returncode, 0)
         self.assertEqual(report["status"], "ranked")
         self.assertEqual(len(calls), 1)
+        self.assertEqual(len(self.preflight_calls), 1)
+        self.assertEqual(self.preflight_calls[0]["stdin"], "")
+        self.assertEqual(self.preflight_calls[0]["states"], [])
+        self.assertEqual(report["cli_preflight"], {
+            "invocations": 1, "version": "0.3.2", "timeout_seconds": 2,
+            "output_limit_bytes": 1024,
+        })
         argv = calls[0]["argv"]
         for flag, value in [("--range", "0-4"), ("--jobs", "2"),
                             ("--retries", "0"), ("--timeout", "3")]:
@@ -493,6 +509,175 @@ class RankCandidatesCLI(unittest.TestCase):
         self.assert_not_exposed(completed, "missing-sensitive-location", "Traceback",
                                 "No such file or directory", "FileNotFoundError")
 
+    def test_unverified_version_never_starts_scoring_or_reserves_http_budget(self):
+        for version_mode in ("unknown", "malformed", "empty", "nonzero"):
+            with self.subTest(version_mode=version_mode):
+                data = case([candidate("a"), candidate("b", origins=["stack"])])
+                completed, report, calls = self.run_helper(data, execute=True,
+                    env_extra={"FAKE_JEV_VERSION_MODE": version_mode})
+                self.assertEqual(completed.returncode, 2)
+                self.assertEqual(report["status"], "fallback")
+                self.assertEqual(calls, [])
+                self.assertEqual(len(self.preflight_calls), 1)
+                self.assertEqual(self.preflight_calls[0]["stdin"], "")
+                self.assertEqual(report["cli_preflight"]["invocations"], 1)
+                self.assertIsNone(report["cli_preflight"]["version"])
+                self.assertEqual(report["usage"]["cli_invocations"], 0)
+                self.assertEqual(report["usage"]["submitted_candidates"], 0)
+                self.assertEqual(report["usage"]["http_attempts_upper_bound"], 0)
+                self.assertIn("cli_version_unverified", self.diagnostic_codes(report))
+                self.assertEqual(report["investigation_order"], ["b", "a"])
+                self.assert_metadata(report, data)
+                self.assert_not_exposed(completed, UNTRUSTED_ERROR)
+
+    def test_version_preflight_has_its_own_short_deadline(self):
+        started = time.monotonic()
+        completed, report, calls = self.run_helper(execute=True,
+            extra=("--batch-timeout", "0.5"),
+            env_extra={"FAKE_JEV_VERSION_MODE": "timeout"})
+        self.assertLess(time.monotonic() - started, 4.5)
+        self.assertEqual(completed.returncode, 2)
+        self.assertEqual(calls, [])
+        self.assertEqual(report["cli_preflight"]["invocations"], 1)
+        self.assertIsNone(report["cli_preflight"]["version"])
+        self.assertEqual(report["usage"]["cli_invocations"], 0)
+        self.assertIn("cli_version_timeout", self.diagnostic_codes(report))
+
+    def test_version_preflight_caps_both_output_streams_without_leaking_them(self):
+        for version_mode in ("output_limit", "stderr_limit"):
+            with self.subTest(version_mode=version_mode):
+                completed, report, calls = self.run_helper(execute=True,
+                    env_extra={"FAKE_JEV_VERSION_MODE": version_mode})
+                self.assertEqual(completed.returncode, 2)
+                self.assertEqual(calls, [])
+                self.assertEqual(report["cli_preflight"]["invocations"], 1)
+                self.assertIsNone(report["cli_preflight"]["version"])
+                self.assertEqual(report["usage"]["cli_invocations"], 0)
+                self.assertIn("cli_version_output_limit", self.diagnostic_codes(report))
+                self.assert_not_exposed(completed, UNTRUSTED_ERROR, "x" * 200)
+
+    def test_scoring_spawn_failure_after_verified_preflight_is_not_counted(self):
+        real_popen = RANK.subprocess.Popen
+
+        def start(command, **kwargs):
+            if command[1] == "score":
+                raise OSError("PRIVATE_SCORE_START_FAILURE")
+            return real_popen(command, **kwargs)
+
+        with patch.object(RANK.subprocess, "Popen", start):
+            report = RANK.rank_case(case(), SimpleNamespace(
+                execute=True, jev=str(self.fake), batch_timeout=1, request_timeout=1))
+        self.assertEqual(report["status"], "fallback")
+        self.assertIn("cli_preflight", report)
+        self.assertEqual(report["cli_preflight"]["invocations"], 1)
+        self.assertEqual(report["cli_preflight"]["version"], "0.3.2")
+        self.assertEqual(report["usage"]["cli_invocations"], 0)
+        self.assertEqual(report["usage"]["http_attempts_upper_bound"], 0)
+        self.assertIn("cli_missing", self.diagnostic_codes(report))
+        self.assertNotIn("PRIVATE_SCORE_START_FAILURE", json.dumps(report))
+
+    def test_version_probe_io_failure_is_counted_without_starting_scoring(self):
+        spawned = []
+        real_popen = RANK.subprocess.Popen
+
+        def start(command, **kwargs):
+            process = real_popen(command, **kwargs)
+            spawned.append(process)
+            return process
+
+        with patch.object(RANK.subprocess, "Popen", start), \
+                patch.object(RANK.os, "set_blocking",
+                             side_effect=OSError("PRIVATE_VERSION_IO_ERROR")):
+            report = RANK.rank_case(case(), SimpleNamespace(
+                execute=True, jev=str(self.fake), batch_timeout=1, request_timeout=1))
+        self.assertEqual(report["status"], "fallback")
+        self.assertIn("cli_preflight", report)
+        self.assertEqual(report["cli_preflight"]["invocations"], 1)
+        self.assertIsNone(report["cli_preflight"]["version"])
+        self.assertEqual(report["usage"]["cli_invocations"], 0)
+        self.assertEqual(report["usage"]["http_attempts_upper_bound"], 0)
+        self.assertIn("cli_io_error", self.diagnostic_codes(report))
+        self.assertNotIn("PRIVATE_VERSION_IO_ERROR", json.dumps(report))
+        self.assertEqual(len(spawned), 1)
+        self.assertIsNotNone(spawned[0].poll())
+
+    def test_pipe_setup_failure_after_scoring_start_retains_budget(self):
+        spawned = []
+        real_popen = RANK.subprocess.Popen
+        real_set_blocking = RANK.os.set_blocking
+
+        def start(command, **kwargs):
+            process = real_popen(command, **kwargs)
+            if command[1] == "score":
+                spawned.append(process)
+            return process
+
+        def set_blocking(fd, blocking):
+            if spawned:
+                raise OSError("PRIVATE_POST_START_IO_ERROR")
+            return real_set_blocking(fd, blocking)
+
+        with patch.object(RANK.subprocess, "Popen", start), \
+                patch.object(RANK.os, "set_blocking", set_blocking):
+            report = RANK.rank_case(case([candidate("a"), candidate("b")]),
+                                    SimpleNamespace(execute=True, jev=str(self.fake),
+                                                    batch_timeout=1, request_timeout=1))
+        self.assertEqual(report["status"], "fallback")
+        self.assertIn("cli_io_error", self.diagnostic_codes(report))
+        self.assertNotIn("cli_missing", self.diagnostic_codes(report))
+        self.assertEqual(report["usage"]["cli_invocations"], 1)
+        self.assertEqual(report["usage"]["submitted_candidates"], 2)
+        self.assertEqual(report["usage"]["http_attempts_upper_bound"], 4)
+        self.assertNotIn("PRIVATE_POST_START_IO_ERROR", json.dumps(report))
+        self.assertEqual(len(spawned), 1)
+        self.assertIsNotNone(spawned[0].poll())
+        self.assertTrue(all(stream.closed for stream in (
+            spawned[0].stdin, spawned[0].stdout, spawned[0].stderr)))
+
+    def test_io_failure_keeps_flushed_score_and_reaps_scoring_process(self):
+        spawned = []
+        stdout_fd = None
+        flushed = False
+        real_popen = RANK.subprocess.Popen
+        real_read = RANK.os.read
+        selector_type = RANK.selectors.DefaultSelector
+        real_select = selector_type.select
+
+        def start(command, **kwargs):
+            nonlocal stdout_fd
+            process = real_popen(command, **kwargs)
+            if command[1] == "score":
+                spawned.append(process)
+                stdout_fd = process.stdout.fileno()
+            return process
+
+        def read(fd, count):
+            nonlocal flushed
+            chunk = real_read(fd, count)
+            if fd == stdout_fd and b"\n" in chunk:
+                flushed = True
+            return chunk
+
+        def select(selector, timeout=None):
+            if flushed:
+                raise OSError("PRIVATE_PIPE_IO_ERROR")
+            return real_select(selector, timeout)
+
+        with patch.dict(os.environ, {"FAKE_JEV_MODE": "timeout"}), \
+                patch.object(RANK.subprocess, "Popen", start), \
+                patch.object(RANK.os, "read", read), \
+                patch.object(selector_type, "select", select):
+            report = RANK.rank_case(case([candidate("a"), candidate("b")]),
+                                    SimpleNamespace(execute=True, jev=str(self.fake),
+                                                    batch_timeout=2, request_timeout=1))
+        self.assertEqual(report["status"], "partial")
+        self.assertEqual(self.entries(report)["a"]["status"], "scored")
+        self.assertEqual(self.entries(report)["b"]["error"]["code"], "cli_io_error")
+        self.assertEqual(report["usage"]["cli_invocations"], 1)
+        self.assertEqual(report["usage"]["http_attempts_upper_bound"], 4)
+        self.assertNotIn("PRIVATE_PIPE_IO_ERROR", json.dumps(report))
+        self.assertIsNotNone(spawned[0].poll())
+
     def test_unreviewed_input_cannot_execute(self):
         data = case()
         data["reviewed_for_secrets"] = False
@@ -691,6 +876,7 @@ class CredentialPathBoundary(unittest.TestCase):
                         report = RANK.rank_case(data, SimpleNamespace(
                             execute=True, jev="unused", batch_timeout=45, request_timeout=10))
                     run.assert_not_called()
+                    self.assertEqual(report["cli_preflight"]["invocations"], 0)
                     self.assertEqual(report["status"], "fallback")
                     entry = report["candidates"][0]
                     self.assertEqual(entry["status"], "local_only")
@@ -709,7 +895,17 @@ class CredentialPathBoundary(unittest.TestCase):
         private = candidate("private", path="config/.netrc", origins=["stack"],
                             snippet="machine example.invalid login demo password SYNTHETIC_NETRC_VALUE")
 
-        def score_safe(command, payload, timeout):
+        def score_safe(command, payload, timeout, output_limit=RANK.OUTPUT_LIMIT):
+            if command == ["unused", "--version"]:
+                self.assertEqual(payload, b"")
+                self.assertEqual(timeout, 2.0)
+                self.assertEqual(output_limit, 1024)
+                return b"jev 0.3.2\n", b"", 0, None
+            self.assertEqual(command, ["unused", "score", RANK.QUESTION, "--range", "0-4",
+                                       "--lines", "--json", "--jobs", "2", "--retries", "0",
+                                       "--timeout", "10"])
+            self.assertEqual(timeout, 45)
+            self.assertEqual(output_limit, 65536)
             states = [json.loads(line) for line in payload.splitlines()]
             self.assertEqual([state["candidate"] for state in states], [safe])
             self.assertNotIn(b"SYNTHETIC_NETRC_VALUE", payload)
@@ -723,7 +919,11 @@ class CredentialPathBoundary(unittest.TestCase):
         with patch.object(RANK, "run_batch", side_effect=score_safe) as run:
             report = RANK.rank_case(case([safe, private]), SimpleNamespace(
                 execute=True, jev="unused", batch_timeout=45, request_timeout=10))
-        run.assert_called_once()
+        self.assertEqual(run.call_count, 2)
+        self.assertEqual(run.call_args_list[0].args, (["unused", "--version"], b"", 2.0, 1024))
+        self.assertEqual(report["cli_preflight"]["invocations"], 1)
+        self.assertEqual(report["cli_preflight"]["version"], "0.3.2")
+        self.assertEqual(report["usage"]["cli_invocations"], 1)
         self.assertEqual(report["status"], "partial")
         self.assertEqual(report["candidates"][0]["score"], 0.75)
         self.assertEqual(report["candidates"][1]["status"], "local_only")

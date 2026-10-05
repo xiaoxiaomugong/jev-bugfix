@@ -52,7 +52,9 @@ python3 skills/jev-bugfix/scripts/rank_candidates.py --input tests/fixtures/smok
 
 ## 测试与验收
 
-本次验收：41 项离线回归、5 项本机 CLI 契约检查、独立修复演练和真实 API 冒烟均通过。发现的问题、修复与原始演练证据见 [验收记录](tests/VALIDATION.md)。
+V1 历史验收：41 项离线回归、5 项本机 CLI 契约检查、独立修复演练和真实 API 冒烟均通过，见 [验收记录](tests/VALIDATION.md)。这些记录不证明定位效率或成本收益。
+
+[运行边界验证说明](tests/RUNTIME-VALIDATION.md)。执行评分前运行 2 秒／1 KiB 的本地版本预检，仅验证为 Jev 0.3.2 时评分。默认 dry-run 不启动 CLI；版本预检和评分进程次数分开记录。启动后的 I/O 失败仍保留评分调用和 HTTP 预算上界。
 
 离线测试不读凭据、不访问 API，用真实 subprocess 边界和 fake CLI 验证输出处理：
 
