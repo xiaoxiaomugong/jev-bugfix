@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "events": [
+    {
+      "event_id": "synthetic-worker-001",
+      "timestamp": "2026-10-05T08:00:00.000Z",
+      "service": "worker",
+      "environment": "production",
+      "release": "synthetic-deployment-2026-10-05",
+      "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "exception": {
+        "type": "ValueError",
+        "message": "Synthetic batch size is invalid",
+        "frames": [
+          {"path": "/srv/application/src/worker.py", "line": 12, "function": "run", "in_app": true},
+          {"path": "/srv/application/src/parser.py", "line": 25, "function": "parse_size", "in_app": true}
+        ]
+      },
+      "breadcrumbs": [
+        {"timestamp": "2026-10-05T07:59:59Z", "category": "synthetic.input", "level": "info", "message": "Synthetic runtime input: batch_size=0"}
+      ],
+      "trace": {
+        "trace_id": "synthetic-trace-001",
+        "span_id": "synthetic-child-001",
+        "parent_span_id": "synthetic-parent-001",
+        "spans": [
+          {"span_id": "synthetic-parent-001", "parent_span_id": "synthetic-root-001", "op": "queue.consume", "status": "ok", "start_timestamp": "2026-10-05T07:59:58Z", "end_timestamp": "2026-10-05T07:59:59Z"},
+          {"span_id": "synthetic-child-001", "parent_span_id": "synthetic-parent-001", "op": "batch.parse", "status": "invalid_argument", "start_timestamp": "2026-10-05T07:59:59Z", "end_timestamp": "2026-10-05T08:00:00Z"}
+        ]
+      },
+      "runtime": {"language": "python", "version": "3.9.20", "os": "linux", "arch": "x86_64"}
+    },
+    {
+      "event_id": "synthetic-worker-002",
+      "timestamp": "2026-10-05T08:00:01Z",
+      "service": "worker",
+      "environment": "production",
+      "release": "synthetic-deployment-2026-10-05",
+      "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "exception": {
+        "type": "ValueError",
+        "message": "Synthetic retry observes the same invalid input",
+        "frames": [
+          {"path": "/srv/application/src/worker.py", "line": 12, "function": "run", "in_app": true},
+          {"path": "/srv/application/src/parser.py", "line": 25, "function": "parse_size", "in_app": true}
+        ]
+      },
+      "breadcrumbs": [],
+      "trace": {"trace_id": "synthetic-trace-001", "span_id": "synthetic-child-002", "parent_span_id": "synthetic-parent-001", "spans": []},
+      "runtime": {"language": "python", "version": "3.9.20", "os": "linux", "arch": "x86_64"}
+    }
+  ]
+}

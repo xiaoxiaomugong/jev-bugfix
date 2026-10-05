@@ -1,12 +1,12 @@
 # jev-bugfix
 
-源技能在 `skills/jev-bugfix`。Codex 先复现并通过堆栈、rg、调用关系收集片段；Python 标准库助手调用已安装的 Jev 排序；Codex 确认根因、最小修复并跑测试。目标是减少无效代码阅读和保持修复质量，当前没有成本改善结论。
+源技能在 `skills/jev-bugfix`。Codex 通过复现或本地线上事件证据开始调查，并通过堆栈、rg、调用关系收集片段；Python 标准库助手调用已安装的 Jev 排序；Codex 确认根因、最小修复并跑测试。目标是减少无效代码阅读和保持修复质量，当前没有成本改善结论。
 
 输入是 bug/复现证据和带 ID、路径、行号、来源的候选 JSON；输出是完整调查顺序、逐项评分/错误和调用上界。具体示例及边界见 [contract.md](skills/jev-bugfix/references/contract.md)。默认一批 12 个候选、每段 2 KiB/60 行、发送合计 24 KiB、并发 2、socket 超时 10 秒、整批 45 秒、无外层重试；最多 24 次底层 HTTP 尝试。堆栈候选优先，评分不能永久排除候选或证明修复正确。
 
 ## 安装与调用
 
-需要 Python 3.9+（macOS/Linux）和本机 Jev 0.3.2。核对命令只访问本机：
+执行评分需要 Python 3.9+（macOS/Linux）和本机 Jev 0.3.2；本地证据准备及 dry-run 无须启动 Jev，准备器另需本地 Git。核对命令只访问本机：
 
 ```sh
 jev --version
@@ -49,6 +49,31 @@ python3 skills/jev-bugfix/scripts/rank_candidates.py --input tests/fixtures/smok
 ```
 
 缺凭据时直接回退到 Codex。若需要配置，用户在自己的终端运行 `jev auth set`；不要在聊天中提供密钥。
+
+## 本地线上事件入口
+
+“线上报错、本地正常”或暂时无法复现时，可先导入明确格式的 `production-events/v1` UTF-8 JSON。准备层仅用 Python 标准库、本地文件和只读 Git，不需要 Jev 或凭据；格式、完整合成样例和限制见 [生产证据契约](skills/jev-bugfix/references/production-evidence.md)。其他日志格式必须先显式转换。
+
+以下为参数模板，须替换成本地输入、仓库、映射和新输出目录。
+
+```sh
+python3 -B skills/jev-bugfix/scripts/prepare_incident.py \
+  --input /path/events.json --repo /path/application \
+  --release-map /path/release-map.json --event-id event-001 \
+  --source-root /srv/application --output-dir /path/new-output
+python3 -B skills/jev-bugfix/scripts/rank_candidates.py \
+  --input /path/new-output/case.json
+```
+
+`--release-map`、`--event-id`、`--source-root` 按实际证据提供；已知正常版本可另传 `--baseline-revision <本地提交或完整 tag>`。release 是部署标识，不能默认当作 Git tag 或 HEAD；没有显式基线时不做升级归因。多组事件需要明确选择，缺版本映射、路径映射或历史对象时，按报告补齐本地来源再运行，不自动 fetch。
+
+输出目录须为新目录或空目录。`evidence.json` 保存代表事件、显式运行时信息、版本核对、候选 provenance 和缺口，`report.md` 供本地调查；仅有合格且未超预算的候选时生成严格 V1 `case.json`。`ready` 为 exit 0，`partial/needs_input/error` 为 exit 2；部分成功须继续处理缺口。这些状态只描述证据准备。生成的 case 默认 `reviewed_for_secrets=false`，脱敏后仍须人工审核，才可沿原流程外发评分；原始日志、release-map 与 sidecar 不自动外发。
+
+**V1 case 不带版本信息。** 后续阅读上下文、搜索符号与核对调用关系，必须使用 sidecar 中候选绑定的 `event_commit` 和 blob；不能直接按 case 的路径/行号读 HEAD。HEAD 不同或 dirty 仍可准备事件版本候选。丢失 sidecar 时先补齐来源；明确拟修改哪个版本后，再单独映射到当前源码并重新核验。
+
+报告分别记录线上观察、本地复现 `not_attempted/cannot_reproduce/reproduced`、根因 `hypothesis/confirmed`、修复 `unverified/verified`、回归归因 `suspected/confirmed/unknown`。只比较明确提供的运行时/配置证据，不转储环境变量。线上事件可支持假设与调查顺序；本地未报错不能证明线上已经修复。
+
+首期不连接 Sentry，不支持任意日志、source maps、自动 bisect 或自动修复。两个明确标为 synthetic 的离线演练及可重建产物见 [生产证据验收](tests/PRODUCTION-EVIDENCE-VALIDATION.md)，它们不计入原 P1 benchmark。
 
 ## 测试与验收
 
