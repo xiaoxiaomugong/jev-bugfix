@@ -225,8 +225,8 @@ def _preflight_collections(raw):
     _list(trace, "spans", MAX_SPANS, "spans_over_limit", [])
 
 
-def load_events(input_path):
-    """Load only the documented UTF-8 JSON format, keeping exact values local."""
+def load_bounded_json(input_path):
+    """Read bounded, strict JSON without imposing an adapter's text schema."""
     try:
         with Path(input_path).open("rb") as handle:
             raw = handle.read(MAX_FILE_BYTES + 1)
@@ -246,6 +246,11 @@ def load_events(input_path):
         if isinstance(error, EvidenceError):
             raise
         raise EvidenceError("input_json_invalid") from None
+    return value, hashlib.sha256(raw).hexdigest()
+
+
+def normalize_projection(value, input_sha256, adapter=ADAPTER):
+    """Validate and normalize the strict production-events/v1 projection."""
     value = _fields(value, ("schema_version", "events"))
     if type(value.get("schema_version")) is not int or value["schema_version"] != 1:
         raise EvidenceError("input_schema_invalid")
@@ -257,7 +262,7 @@ def load_events(input_path):
     for raw_event in events:
         _preflight_collections(raw_event)
     _check_strings(value)
-    result = {"schema_version": 1, "adapter": ADAPTER, "input_sha256": hashlib.sha256(raw).hexdigest(),
+    result = {"schema_version": 1, "adapter": adapter, "input_sha256": input_sha256,
               "events": [], "diagnostics": []}
     seen = {}
     for index, raw_event in enumerate(events):
@@ -277,6 +282,12 @@ def load_events(input_path):
             seen[identifier] = (normalized, fingerprint)
             result["events"].append(normalized)
     return result
+
+
+def load_events(input_path):
+    """Load only the documented UTF-8 JSON format, keeping exact values local."""
+    value, input_sha256 = load_bounded_json(input_path)
+    return normalize_projection(value, input_sha256)
 
 
 def _group_key(event):

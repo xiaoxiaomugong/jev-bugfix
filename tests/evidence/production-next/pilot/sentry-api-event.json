@@ -1,0 +1,76 @@
+{
+  "contexts": {
+    "os": {
+      "name": "Darwin",
+      "version": "25.5.0"
+    },
+    "runtime": {
+      "name": "CPython",
+      "version": "3.14.6"
+    }
+  },
+  "dateCreated": "2026-10-05T15:19:35.220103Z",
+  "entries": [
+    {
+      "data": {
+        "values": [
+          {
+            "stacktrace": {
+              "frames": [
+                {
+                  "filename": "boltons/iterutils.py",
+                  "function": "backoff_iter",
+                  "inApp": true,
+                  "lineNo": 651
+                }
+              ]
+            },
+            "type": "ZeroDivisionError",
+            "value": "division by zero"
+          }
+        ]
+      },
+      "type": "exception"
+    },
+    {
+      "data": {
+        "values": [
+          {
+            "category": "local.oss-replay",
+            "level": "info",
+            "message": "Retrospective local call: list(backoff_iter(5, 5, factor=1.0)); count omitted.",
+            "timestamp": "2026-10-05T15:19:35.220103Z"
+          }
+        ]
+      },
+      "type": "breadcrumbs"
+    }
+  ],
+  "eventID": "b0170000000000000000000000000452",
+  "extra": {
+    "classification": "oss_replay",
+    "fixture_revision": "eb110f9f84ca0bdc0d9dac833d61859e15a3d527",
+    "in_app_convention": "True means source belongs to the investigated boltons repository.",
+    "known_answer": true,
+    "nonblind": true,
+    "observed_upstream_commit": "57cb026b7f47cd2765a0d5acdc83849ed5f1f6a3",
+    "omitted_harness_frames": 1,
+    "reconstructed_event": true,
+    "snapshot_reconstruction": true
+  },
+  "id": "452",
+  "platform": "python",
+  "release": {
+    "version": "oss-replay/boltons/fixture-eb110f9"
+  },
+  "tags": [
+    {
+      "key": "environment",
+      "value": "local-retrospective"
+    },
+    {
+      "key": "service",
+      "value": "oss-replay-boltons"
+    }
+  ]
+}

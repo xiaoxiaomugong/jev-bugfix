@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "entries": [
+    {
+      "service": "oss-replay-boltons",
+      "environment": "local-retrospective",
+      "release": "oss-replay/boltons/fixture-eb110f9",
+      "revision": "eb110f9f84ca0bdc0d9dac833d61859e15a3d527"
+    }
+  ]
+}

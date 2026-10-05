@@ -1,0 +1,15 @@
+{
+  "kind": "schema_fixture",
+  "reconstructed_event": true,
+  "real_incident": false,
+  "source_commit": "e54d88cf6b77fc44832be3bf341466192de7f7bd",
+  "source_api": "https://docs.sentry.io/api/events/retrieve-an-event-for-a-project/",
+  "official_example_sha256": "424207324eb9cb12ccaad5f0b165e44a3564f62662ccfaa9f410829fdab63610",
+  "fixtures": {
+    "complete.json": "f1adc8d9d6dc5b0ba0a36f8f27c8f3e1f11f6e1c248e4bcfec669a3f252d1184",
+    "multi-exception.json": "fab219400ca35880761774d313e8267491d8079a0bf4f76b85c56b1f1cececc8",
+    "expected-projection.json": "9ef5d8df5e22f7a0a42eb3ab40c58810bf46c62d211e498ecea0fabd64e0bb09"
+  },
+  "expected_projection_sha256": "f9c8d8629760f45ba5d396acc03799154958e6c38f9e1f9f4a78b46b621334df",
+  "note": "Synthetic values rebuilt to the official API response shape; no production incident or source authentication claim."
+}

@@ -1,0 +1,5 @@
+# Keep pinned third-party bytes, including documented upstream whitespace.
+# All project-authored files retain the normal whitespace checks.
+tests/evidence/production-next/pilot/source/broken/iterutils.py -text whitespace=-blank-at-eol
+tests/evidence/production-next/pilot/source/fixed/iterutils.py -text whitespace=-blank-at-eol
+tests/evidence/production-next/pilot/source/LICENSE.boltons -text whitespace=cr-at-eol

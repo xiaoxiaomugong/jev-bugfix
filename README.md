@@ -67,13 +67,37 @@ python3 -B skills/jev-bugfix/scripts/rank_candidates.py \
 
 `--release-map`、`--event-id`、`--source-root` 按实际证据提供；已知正常版本可另传 `--baseline-revision <本地提交或完整 tag>`。release 是部署标识，不能默认当作 Git tag 或 HEAD；没有显式基线时不做升级归因。多组事件需要明确选择，缺版本映射、路径映射或历史对象时，按报告补齐本地来源再运行，不自动 fetch。
 
-输出目录须为新目录或空目录。`evidence.json` 保存代表事件、显式运行时信息、版本核对、候选 provenance 和缺口，`report.md` 供本地调查；仅有合格且未超预算的候选时生成严格 V1 `case.json`。`ready` 为 exit 0，`partial/needs_input/error` 为 exit 2；部分成功须继续处理缺口。这些状态只描述证据准备。生成的 case 默认 `reviewed_for_secrets=false`，脱敏后仍须人工审核，才可沿原流程外发评分；原始日志、release-map 与 sidecar 不自动外发。
+输出目录须为新目录或空目录。`evidence.json` 保存代表事件、显式运行时信息、版本核对、候选 provenance 和缺口，`report.md` 供本地调查；仅有合格且未超预算的候选时生成严格 V1 `case.json`，同时生成 `bundle.json`。`ready` 为 exit 0，`partial/needs_input/error` 为 exit 2；部分成功须继续处理缺口。这些状态只描述证据准备。生成的 case 默认 `reviewed_for_secrets=false`，脱敏后仍须人工审核，才可沿原流程外发评分；原始日志、release-map 与 sidecar 不自动外发。
 
 **V1 case 不带版本信息。** 后续阅读上下文、搜索符号与核对调用关系，必须使用 sidecar 中候选绑定的 `event_commit` 和 blob；不能直接按 case 的路径/行号读 HEAD。HEAD 不同或 dirty 仍可准备事件版本候选。丢失 sidecar 时先补齐来源；明确拟修改哪个版本后，再单独映射到当前源码并重新核验。
 
 报告分别记录线上观察、本地复现 `not_attempted/cannot_reproduce/reproduced`、根因 `hypothesis/confirmed`、修复 `unverified/verified`、回归归因 `suspected/confirmed/unknown`。只比较明确提供的运行时/配置证据，不转储环境变量。线上事件可支持假设与调查顺序；本地未报错不能证明线上已经修复。
 
 首期不连接 Sentry，不支持任意日志、source maps、自动 bisect 或自动修复。两个明确标为 synthetic 的离线演练及可重建产物见 [生产证据验收](tests/PRODUCTION-EVIDENCE-VALIDATION.md)，它们不计入原 P1 benchmark。
+
+本地保存的 Sentry 单事件 API 响应可使用显式 `sentry-api-event/v1` profile，字段与支持范围见 [Sentry 离线映射](skills/jev-bugfix/references/sentry-event-import.md)。它只适配 “Retrieve an Event for a Project” 响应；SDK/envelope、issue 聚合和 UI 导出须另核实，不能自动混用。
+
+```sh
+python3 -B skills/jev-bugfix/scripts/prepare_incident.py \
+  --input /path/sentry-event.json --input-format sentry-api-event/v1 \
+  --repo /path/application --release-map /path/release-map.json \
+  --service application-service --source-root /srv/application \
+  --output-dir /path/new-output
+python3 -B skills/jev-bugfix/scripts/inspect_incident.py \
+  --bundle /path/new-output/bundle.json --repo /path/application
+python3 -B skills/jev-bugfix/scripts/inspect_incident.py \
+  --bundle /path/new-output/bundle.json --repo /path/application \
+  --candidate-id <case-candidate-id> --context-lines 20 \
+  --source-output /path/new-context.txt
+```
+
+有多条异常时须显式 `--exception-index`，从 0 开始；service tag 与参数冲突会保留缺口，project 不默认为 service。没有异常或可核实应用帧时保留证据，不伪造堆栈。API 的 `id` 不替代 `eventID`，SDK 版本不当作应用运行时，release 的 lastCommit 不当作目标仓库提交。request/user/vars 等只记忽略类别与数量；白名单投影后沿原版本、路径和脱敏规则处理。
+
+核验器默认只检查 case、sidecar、输入身份、候选引用和实际 Git blob，不输出源码。上下文写入新本地文件，始终读取事件提交，整行上限 16 KiB；超限须缩小 `--context-lines`。核验状态 `verified` 为 exit 0，`invalid/unavailable/legacy_unbound` 为 exit 2。旧包没有 bundle 时保留原人工核验流程或重新准备，不自动补绑定。核验不代替秘密审核、来源认证、根因确认或修复验收；整套自洽替换也不能靠自带哈希认证。
+
+允许人工切换 `reviewed_for_secrets` 或将更多候选设为 `local_only=true`，原本必须 local_only 的候选不能放松。修改 bug 摘要、源码、路径或候选顺序会破坏绑定。需要精简摘要或补充预期/复现时，用 `--bug-context /path/context.json` 加原输入，在新目录重新准备；文件只允许 `description/reproduction`，不覆盖堆栈、候选、版本或结论，记录补充哈希及 `user_supplied_unverified`，审核仍默认 false。
+
+本轮公开开源回放及实际验证见 [下一阶段验收](tests/PRODUCTION-NEXT-VALIDATION.md)。回放采用真实开源代码与已知修复，事件是重建的；真实生产事件验收仍单独列出状态。本轮不实现在线 Sentry 拉取，P1 保持 0/12。
 
 ## 测试与验收
 
