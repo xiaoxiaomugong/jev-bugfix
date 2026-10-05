@@ -11,7 +11,7 @@ import tempfile
 from types import SimpleNamespace
 
 from incident_candidates import collect_candidates
-from incident_evidence import EvidenceError, escape_markdown, load_events, sanitize_text, sanitize_value, select_incident
+from incident_evidence import EvidenceError, escape_markdown, load_events, parse_timestamp, sanitize_text, sanitize_value, select_incident
 from incident_versions import GitSession, load_release_map, resolve_incident_version
 import rank_candidates as ranker
 
@@ -68,7 +68,7 @@ def observed_timeline(selected, related):
     def ordering(item):
         timestamp = item.get('timestamp')
         if timestamp:
-            instant = datetime.fromisoformat(timestamp.replace('Z', '+00:00')).astimezone(timezone.utc)
+            instant = parse_timestamp(timestamp)
             fraction = re.search(r'\.(\d+)', timestamp)
             return (0, instant.replace(microsecond=0), fraction.group(1).rstrip('0') if fraction else '')
         return (1, datetime.max.replace(tzinfo=timezone.utc), '')

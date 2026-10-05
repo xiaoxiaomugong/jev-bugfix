@@ -113,13 +113,18 @@ def _fields(value, allowed, optional=False):
     return value
 
 
-def _timestamp(value):
+def parse_timestamp(value):
     if value is None:
         return None
     if not TIMESTAMP_RE.fullmatch(value):
         raise EvidenceError("timestamp_invalid")
     try:
-        instant = datetime.fromisoformat(value[:-1] + "+00:00" if value.endswith("Z") else value)
+        # Python 3.9 accepts only 3/6 fraction digits. Parse a bounded
+        # microsecond projection; retain the original text for exact ordering.
+        compatible = re.sub(r"\.(\d+)",
+                            lambda match: "." + match.group(1)[:6].ljust(6, "0"), value, count=1)
+        instant = datetime.fromisoformat(compatible[:-1] + "+00:00"
+                                         if compatible.endswith("Z") else compatible)
         # UTC conversion can overflow for otherwise valid year 0001/9999 offsets.
         instant = instant.astimezone(timezone.utc)
     except (ValueError, OverflowError):
@@ -143,7 +148,7 @@ def _scalar(source, key, missing, prefix="", kind="text"):
         if type(value) is not str:
             raise EvidenceError("input_type_invalid")
         if kind == "timestamp":
-            _timestamp(value)
+            parse_timestamp(value)
         if not value:
             missing.append(field)
     return value
@@ -282,7 +287,7 @@ def _group_key(event):
 
 
 def _event_order(event):
-    timestamp = _timestamp(event["timestamp"])
+    timestamp = parse_timestamp(event["timestamp"])
     # datetime truncates after microseconds; compare the full decimal fraction
     # separately so nanosecond (or finer) observations retain their order.
     fraction = re.search(r"\.(\d+)", event["timestamp"]) if timestamp is not None else None

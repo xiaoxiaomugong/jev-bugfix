@@ -120,11 +120,14 @@ class IncidentEvidenceTests(unittest.TestCase):
         self.assertIn("selected_timestamp_missing", result["diagnostics"])
 
     def test_submicrosecond_timestamp_precision_controls_representative(self):
-        result = EVIDENCE.select_incident(self.load([
-            event("later", timestamp="2026-10-05T08:00:00.0000002Z"),
-            event("earlier", timestamp="2026-10-05T08:00:00.0000001Z"),
-        ]))
-        self.assertEqual(result["selected"]["event_id"], "earlier")
+        for later, earlier in [(".0000002", ".0000001"), (".2", ".1"), (".0002", ".0001")]:
+            with self.subTest(fraction=earlier):
+                times = ["2026-10-05T08:00:00" + fraction + "Z" for fraction in (later, earlier)]
+                normalized = self.load([event("later", timestamp=times[0]),
+                                        event("earlier", timestamp=times[1])])
+                self.assertEqual([item["timestamp"] for item in normalized["events"]], times)
+                result = EVIDENCE.select_incident(normalized)
+                self.assertEqual(result["selected"]["event_id"], "earlier")
 
     def test_explicit_event_id_is_exact_and_unknown_id_needs_input(self):
         normalized = self.load([event("first"), event("second", service="api")])

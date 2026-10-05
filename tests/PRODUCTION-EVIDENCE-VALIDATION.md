@@ -4,7 +4,7 @@
 
 ## 行为覆盖与最小输入
 
-[test_incident_evidence.py](test_incident_evidence.py) 验证严格 schema、限额、时间、去重、分组、event_ref、脱敏与显示转义；唯一静态完整输入是 [production-events.json](fixtures/incidents/production-events.json)，它是合成事件且包含占位提交，不能直接作为真实仓库版本映射。
+[test_incident_evidence.py](test_incident_evidence.py) 验证严格 schema、限额、时间（兼容 Python 3.9 的小数秒解析，保留原始精度用于排序）、去重、分组、event_ref、脱敏与显示转义；唯一静态完整输入是 [production-events.json](fixtures/incidents/production-events.json)，它是合成事件且包含占位提交，不能直接作为真实仓库版本映射。
 
 [test_incident_versions.py](test_incident_versions.py)、[test_incident_candidates.py](test_incident_candidates.py) 和 [test_prepare_incident.py](test_prepare_incident.py) 使用 [incident_test_support.py](incident_test_support.py) 创建临时本地 Git 仓库。它们覆盖精确映射、歧义与缺对象、checkout/baseline 缺口、禁用 hooks/filter/fsmonitor/replace/grafts 与网络、根相对 tree、事件 blob、源码路径与候选预算、敏感材料及产物事务写入。新增的 `.netrc` 事件 blob 回归还核对凭据片段保留为 local_only，与上游 ranker 保护一致。测试不依赖原工作区、个人缓存或已保存的历史演练产物。
 
