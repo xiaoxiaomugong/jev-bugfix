@@ -251,10 +251,31 @@ class RunBenchmarkTests(unittest.TestCase):
                            ("payload_bytes", 24577), ("preflight_invocations", 2)):
             c = run("C")
             c["jev"][key]["value"] = value
+            if key == "submitted_candidates":
+                c["jev"]["http_attempts_upper_bound"]["value"] = 26
             with self.subTest(key=key), self.assertRaisesRegex(ValueError, "budget deviation"):
                 self.summarize([c])
             c["protocol_deviations"] = ["declared extra run/scoring budget"]
             self.assertEqual(self.summarize([c])["arms"]["C"]["total_runs"], 1)
+
+    def test_started_scoring_requires_exact_reserved_http_bound(self):
+        for bound in (0, 1, 3, 5):
+            c = run("C")
+            c["jev"]["http_attempts_upper_bound"]["value"] = bound
+            with self.subTest(bound=bound), self.assertRaisesRegex(ValueError, "HTTP bound"):
+                self.summarize([c])
+        for key in ("http_attempts_upper_bound", "submitted_candidates", "cli_invocations"):
+            c = run("C")
+            c["jev"][key] = missing("count")
+            with self.subTest(unavailable=key):
+                report = self.summarize([c])
+                self.assertIsNone(report["runs"][0]["jev"][key]["value"])
+
+    def test_no_scoring_start_cannot_claim_reserved_http_attempts(self):
+        c = run("C")
+        c["jev"]["cli_invocations"]["value"] = 0
+        with self.assertRaisesRegex(ValueError, "HTTP bound"):
+            self.summarize([c])
 
     def real_pilot(self):
         records, events = [], []
@@ -281,6 +302,53 @@ class RunBenchmarkTests(unittest.TestCase):
         report = self.summarize(records + extra, events)
         self.assertEqual(report["benefit_evidence"]["status"], "insufficient_evidence")
         self.assertEqual(report["benefit_evidence"]["eligible_real_tasks"], 0)
+
+    def test_unfinished_real_repeats_block_benefit_targets(self):
+        records, events = self.real_pilot()
+        self.assertEqual(self.summarize(records, events)["benefit_evidence"]["status"],
+                         "exploratory_target_met")
+        for arm in ("A", "C"):
+            for gap in ("null_outcome", "unavailable_outcome", "unfinished_timing"):
+                repeated = [copy.deepcopy(record) for record in records[:2]]
+                for record in repeated:
+                    record["run_id"] += "-unfinished"
+                    record["pair_id"] += "-unfinished"
+                unfinished = next(record for record in repeated if record["arm"] == arm)
+                unfinished["costs"]["main_model"] = missing("USD", "run is unfinished")
+                if gap == "null_outcome":
+                    unfinished["outcome"] = None
+                elif gap == "unavailable_outcome":
+                    unfinished["outcome"]["status"] = "unavailable"
+                else:
+                    unfinished["timing"]["finished_at"] = None
+                with self.subTest(arm=arm, gap=gap):
+                    report = self.summarize(records + repeated, events)
+                    self.assertEqual(report["benefit_evidence"]["status"], "insufficient_evidence")
+                    self.assertEqual(report["real_experiment_runs"], 14)
+                    self.assertEqual(report["arms"][arm]["total_runs"], 7)
+                    observed = next(record for record in report["runs"]
+                                    if record["run_id"] == unfinished["run_id"])
+                    self.assertIsNone(observed["total_real_cost"]["value"])
+                    if gap == "unfinished_timing":
+                        self.assertIsNone(observed["elapsed_seconds"]["value"])
+                    else:
+                        self.assertEqual(observed["outcome"]["status"], "unavailable")
+                        self.assertEqual(report["arms"][arm]["successes"], 6)
+        unfinished_repeat = [copy.deepcopy(record) for record in records[:2]]
+        for record in unfinished_repeat:
+            record["run_id"] += "-pending"
+            record["pair_id"] += "-pending"
+        unfinished_repeat[1]["outcome"] = None
+        unfinished_repeat[1]["timing"]["finished_at"] = None
+        quality_failure = [copy.deepcopy(record) for record in records[:2]]
+        for record in quality_failure:
+            record["run_id"] += "-quality-failure"
+            record["pair_id"] += "-quality-failure"
+        quality_failure[1]["outcome"]["status"] = "failure"
+        report = self.summarize(records + unfinished_repeat + quality_failure, events)
+        self.assertEqual(report["benefit_evidence"]["status"], "pause_for_quality_failure")
+        self.assertEqual(report["benefit_evidence"]["cases"], ["case0"])
+        self.assertEqual(report["real_experiment_runs"], 16)
 
     def test_failure_repeat_costs_enter_real_cost_target(self):
         records, events = self.real_pilot()

@@ -46,7 +46,7 @@ token 字段只接受供应商/运行器实测 usage 或 unavailable；不接受
 
 `validations` 每项为 `{role, command, exit_code, evidence}`。role 为 reproduction_before/reproduction_after/independent/regression。success 必须至少一个原复现失败、修复后原复现全部通过、独立行为测试及相关回归全部通过，而且 tests_unmodified=true；删/跳过/放宽测试不算成功。结果缺失不推断成功。测试命令与日志支持不同但合法的修复。
 
-A 的 Jev status=not_used，不允许非零调用记录。C 的评分进程≤1、预检进程≤1、候选≤12、payload≤24576 bytes、HTTP 上界≤24；超出时必须登记 protocol_deviations，仍保留 run，不参与收益判定。只有 verified 0.3.2 可声明正的 `2×submitted` 上界；0 表示没有启动评分，不代表某次启动后没有 HTTP 请求。上界永远不是实测物理请求或费用。
+A 的 Jev status=not_used，不允许非零调用记录。C 的评分进程≤1、预检进程≤1、候选≤12、payload≤24576 bytes、HTTP 上界≤24；超出时必须登记 protocol_deviations，仍保留 run，不参与收益判定。只有 verified 0.3.2 可声明正的 `2×submitted` 上界；已知评分启动且候选数已知时，上界必须精确为 `2×submitted`，不能用较小值冒充预留上界。调用数和上界均已知时，0 只对应没有启动评分，不代表某次启动后没有 HTTP 请求；没有启动也不能声明正上界。缺少调用、候选或上界记录时仍用 null 和原因保留未知，不把缺项补成零。上界永远不是实测物理请求或费用。
 
 ## event 字段
 
@@ -65,7 +65,7 @@ A 的 Jev status=not_used，不允许非零调用记录。C 的评分进程≤1�
 
 按 case 汇总配对差值中位数，然后按独立任务报告胜/平/负、范围和中位数；重复 run 不增加独立任务数。差值为 C−A，负数表示下降；reading_reduction=(A−C)/A，A=0 时百分比为 null。描述统计与收益门槛要使用一致的配对集合，不能拼接不同重复的缺失指标。
 
-描述统计可以各自报告不同的已知指标数量；收益门槛则只使用同时有完整阅读和耗时的同一组 pair，`joint_comparable_pairs` 列出它们，不能拼接重复间的缺项。真实运行集合存在未配对 run 时暂不判定门槛。
+描述统计可以各自报告不同的已知指标数量；收益门槛则只使用同时有完整阅读和耗时的同一组 pair，`joint_comparable_pairs` 列出它们，不能拼接重复间的缺项。真实运行集合存在未配对 run、null/unavailable 结果或缺 finished_at 的未完成 run 时暂不判定门槛，即使其他六个任务已经有完整配对；已登记的重复也必须完成并保留全部费用及失败统计。已确认的 A 成功而 C 失败/超时仍优先触发质量暂停，不因另一重复未完成而隐藏该失败。
 
 预设探索门槛为至少六个完整真实配对任务、阅读降幅中位数≥20%、耗时差中位数≤0；费用仅在全部真实运行费用完整时评估，按任务汇总所有成功与失败重复的费用差，再要求差值中位数、总费用及费用/成功数均不增加。缺费用时成本目标为 unavailable，即使阅读/耗时目标达成也不能宣称成本收益。出现 A 成功而 C 实际失败/超时，先暂停扩样；环境失败仍保留并注明性质。结果最多说明本探索样本是否达到预设工程目标，不能证明普遍收益或质量非劣性。夹具永远是 insufficient_evidence。
 

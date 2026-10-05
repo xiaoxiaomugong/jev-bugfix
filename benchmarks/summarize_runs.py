@@ -128,8 +128,13 @@ def validate_run(record):
         validate_metric(jev.get(key), unit)
     bound = jev["http_attempts_upper_bound"]["value"]
     submitted = jev["submitted_candidates"]["value"]
+    invocations = jev["cli_invocations"]["value"]
     require(bound is None or bound == 0 or jev["version"] == "0.3.2", "unknown CLI cannot claim positive HTTP bound")
     require(bound is None or submitted is None or bound <= 2 * submitted, "invalid HTTP bound")
+    if bound is not None and invocations is not None:
+        require((bound == 0) == (invocations == 0), "HTTP bound must reflect scoring startup")
+        if invocations > 0 and submitted is not None:
+            require(bound == 2 * submitted, "invalid HTTP bound for started scoring")
     require(isinstance(jev.get("failure_types"), list) and all(string(x) for x in jev["failure_types"]), "failure types required")
     if record["arm"] == "A":
         require(jev["status"] == "not_used" and all(jev[k]["value"] in (0, None) for k in JEV_METRICS), "A cannot use Jev")
@@ -343,6 +348,8 @@ def summarize(runs, events):
     eligible_tasks = [t for t in tasks if not t["development_fixture"] and t["joint_comparable_pairs"]]
     real_pairs = [p for p in comparisons if not cases[p["case_id"]][1]]
     balanced = all(set(p["run_ids"]) == {"A", "C"} for p in real_pairs)
+    completed = all(r["outcome"]["status"] != "unavailable"
+                    and r["elapsed_seconds"]["value"] is not None for r in actual)
     benefit = {"status": "insufficient_evidence", "reason": "fewer than six complete comparable real tasks",
                "eligible_real_tasks": len(eligible_tasks), "cost_target": "unavailable",
                "scope": "exploratory targets only; no general savings or quality noninferiority claim"}
@@ -354,6 +361,8 @@ def summarize(runs, events):
                     and not records[p["run_ids"]["A"]]["development_fixture"]]
     if new_failures:
         benefit.update(status="pause_for_quality_failure", reason="C failed where A succeeded", cases=new_failures)
+    elif not completed:
+        benefit["reason"] = "unfinished real runs; complete the frozen run set before evaluating targets"
     elif len(eligible_tasks) >= 6 and balanced and len(eligible_tasks) == len([t for t in tasks if not t["development_fixture"]]):
         reading = statistics.median(t["joint_reading_reduction"] for t in eligible_tasks)
         elapsed = statistics.median(t["joint_elapsed_seconds_delta"] for t in eligible_tasks)
