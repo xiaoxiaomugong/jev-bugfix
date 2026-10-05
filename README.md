@@ -56,6 +56,8 @@ V1 历史验收：41 项离线回归、5 项本机 CLI 契约检查、独立修�
 
 [运行边界验证说明](tests/RUNTIME-VALIDATION.md)。执行评分前运行 2 秒／1 KiB 的本地版本预检，仅验证为 Jev 0.3.2 时评分。默认 dry-run 不启动 CLI；版本预检和评分进程次数分开记录。启动后的 I/O 失败仍保留评分调用和 HTTP 预算上界。
 
+本地评测工具提供固定候选池 A/B/C 比较和运行／事件汇总，均完全离线。协议与用法见 [benchmarks/README.md](benchmarks/README.md)，验证说明见 [V2-VALIDATION.md](tests/V2-VALIDATION.md)。开发夹具只验证计算；[P1 状态](benchmarks/RESULTS.md)仍为 0/12，真实阅读、时间和成本收益尚无配对证据。
+
 离线测试不读凭据、不访问 API，用真实 subprocess 边界和 fake CLI 验证输出处理：
 
 ```sh

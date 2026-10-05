@@ -1,0 +1,564 @@
+{
+  "schema_version": 1,
+  "report_kind": "fixed_pool_rankings",
+  "development_fixture": true,
+  "fixture_cases": 7,
+  "lexical_rule": "unicode-token-overlap-v1",
+  "coverage": {
+    "covered": 6,
+    "total": 7,
+    "rate": 0.8571428571428571
+  },
+  "overall": {
+    "A": {
+      "hit_at_1": 0.14285714285714285,
+      "hit_at_3": 0.42857142857142855,
+      "mrr": 0.39285714285714285
+    },
+    "B": {
+      "hit_at_1": 0.42857142857142855,
+      "hit_at_3": 0.8571428571428571,
+      "mrr": 0.6428571428571429
+    },
+    "C": {
+      "hit_at_1": 0.42857142857142855,
+      "hit_at_3": 0.5714285714285714,
+      "mrr": 0.5714285714285714
+    }
+  },
+  "in_pool": {
+    "A": {
+      "hit_at_1": 0.16666666666666666,
+      "hit_at_3": 0.5,
+      "mrr": 0.4583333333333333
+    },
+    "B": {
+      "hit_at_1": 0.5,
+      "hit_at_3": 1.0,
+      "mrr": 0.75
+    },
+    "C": {
+      "hit_at_1": 0.5,
+      "hit_at_3": 0.6666666666666666,
+      "mrr": 0.6666666666666666
+    }
+  },
+  "improvement_opportunity_cases": 5,
+  "order_changed_cases": {
+    "B": 7,
+    "C": 6
+  },
+  "cases": [
+    {
+      "case_id": "improvement",
+      "development_fixture": true,
+      "fixture_category": "improvement",
+      "covered": true,
+      "repo_revision": "synthetic-fixture",
+      "ranker_revision": "v1-policy-fixture",
+      "pool_provenance": {
+        "kind": "constructed",
+        "collector_blind_to_answer": false,
+        "annotation_source": "Synthetic evaluator labels; not a measured bug investigation."
+      },
+      "c_source": "fake",
+      "jev_version": "0.3.2",
+      "c_status": "ranked",
+      "relevant_candidate_ids": [
+        "c4"
+      ],
+      "hashes": {
+        "evidence_hash": "a9dc7361f62a4a34a6cb7c069bcf55c914b493af73900b2ddb27fba925e0b6a1",
+        "candidate_hash": "efac388d110e93d4b6d3c5d565b338ffeb024221a92c0bec9665ee37444983cb",
+        "frozen_hash": "e36b4fa32b59f64f849cb79b359f6aee95ee91e3c49150d7d5ec378989e1f50f"
+      },
+      "arms": {
+        "A": {
+          "order": [
+            "c1",
+            "c2",
+            "c3",
+            "c4"
+          ],
+          "first_relevant_rank": 4,
+          "hit_at_1": 0,
+          "hit_at_3": 0,
+          "mrr": 0.25,
+          "simulated_bytes_to_first_relevant": 51,
+          "read_stopped_at_relevant": true
+        },
+        "B": {
+          "order": [
+            "c4",
+            "c2",
+            "c3",
+            "c1"
+          ],
+          "first_relevant_rank": 1,
+          "hit_at_1": 1,
+          "hit_at_3": 1,
+          "mrr": 1.0,
+          "simulated_bytes_to_first_relevant": 21,
+          "read_stopped_at_relevant": true
+        },
+        "C": {
+          "order": [
+            "c4",
+            "c2",
+            "c3",
+            "c1"
+          ],
+          "first_relevant_rank": 1,
+          "hit_at_1": 1,
+          "hit_at_3": 1,
+          "mrr": 1.0,
+          "simulated_bytes_to_first_relevant": 21,
+          "read_stopped_at_relevant": true
+        }
+      },
+      "order_changed": {
+        "B": true,
+        "C": true
+      },
+      "improvement_opportunity": true
+    },
+    {
+      "case_id": "first-root",
+      "development_fixture": true,
+      "fixture_category": "first_root",
+      "covered": true,
+      "repo_revision": "synthetic-fixture",
+      "ranker_revision": "v1-policy-fixture",
+      "pool_provenance": {
+        "kind": "constructed",
+        "collector_blind_to_answer": false,
+        "annotation_source": "Synthetic evaluator labels; not a measured bug investigation."
+      },
+      "c_source": "fake",
+      "jev_version": "0.3.2",
+      "c_status": "ranked",
+      "relevant_candidate_ids": [
+        "c1"
+      ],
+      "hashes": {
+        "evidence_hash": "a9dc7361f62a4a34a6cb7c069bcf55c914b493af73900b2ddb27fba925e0b6a1",
+        "candidate_hash": "8b5cbf15239dfaa19c61b963018570b5441d061bdaa244f1b7c6146b4a6bb84b",
+        "frozen_hash": "32fc1ed337c27b9238f3dd1ad6a2ffcfbecda332b4615f4975326d4b072fdc63"
+      },
+      "arms": {
+        "A": {
+          "order": [
+            "c1",
+            "c2",
+            "c3",
+            "c4"
+          ],
+          "first_relevant_rank": 1,
+          "hit_at_1": 1,
+          "hit_at_3": 1,
+          "mrr": 1.0,
+          "simulated_bytes_to_first_relevant": 4,
+          "read_stopped_at_relevant": true
+        },
+        "B": {
+          "order": [
+            "c1",
+            "c4",
+            "c2",
+            "c3"
+          ],
+          "first_relevant_rank": 1,
+          "hit_at_1": 1,
+          "hit_at_3": 1,
+          "mrr": 1.0,
+          "simulated_bytes_to_first_relevant": 4,
+          "read_stopped_at_relevant": true
+        },
+        "C": {
+          "order": [
+            "c1",
+            "c4",
+            "c3",
+            "c2"
+          ],
+          "first_relevant_rank": 1,
+          "hit_at_1": 1,
+          "hit_at_3": 1,
+          "mrr": 1.0,
+          "simulated_bytes_to_first_relevant": 4,
+          "read_stopped_at_relevant": true
+        }
+      },
+      "order_changed": {
+        "B": true,
+        "C": true
+      },
+      "improvement_opportunity": false
+    },
+    {
+      "case_id": "missing-root",
+      "development_fixture": true,
+      "fixture_category": "missing_root",
+      "covered": false,
+      "repo_revision": "synthetic-fixture",
+      "ranker_revision": "v1-policy-fixture",
+      "pool_provenance": {
+        "kind": "constructed",
+        "collector_blind_to_answer": false,
+        "annotation_source": "Synthetic evaluator labels; not a measured bug investigation."
+      },
+      "c_source": "fake",
+      "jev_version": "0.3.2",
+      "c_status": "ranked",
+      "relevant_candidate_ids": [],
+      "hashes": {
+        "evidence_hash": "a9dc7361f62a4a34a6cb7c069bcf55c914b493af73900b2ddb27fba925e0b6a1",
+        "candidate_hash": "efac388d110e93d4b6d3c5d565b338ffeb024221a92c0bec9665ee37444983cb",
+        "frozen_hash": "e36b4fa32b59f64f849cb79b359f6aee95ee91e3c49150d7d5ec378989e1f50f"
+      },
+      "arms": {
+        "A": {
+          "order": [
+            "c1",
+            "c2",
+            "c3",
+            "c4"
+          ],
+          "first_relevant_rank": null,
+          "hit_at_1": 0,
+          "hit_at_3": 0,
+          "mrr": 0.0,
+          "simulated_bytes_to_first_relevant": 51,
+          "read_stopped_at_relevant": false
+        },
+        "B": {
+          "order": [
+            "c4",
+            "c2",
+            "c3",
+            "c1"
+          ],
+          "first_relevant_rank": null,
+          "hit_at_1": 0,
+          "hit_at_3": 0,
+          "mrr": 0.0,
+          "simulated_bytes_to_first_relevant": 51,
+          "read_stopped_at_relevant": false
+        },
+        "C": {
+          "order": [
+            "c4",
+            "c2",
+            "c3",
+            "c1"
+          ],
+          "first_relevant_rank": null,
+          "hit_at_1": 0,
+          "hit_at_3": 0,
+          "mrr": 0.0,
+          "simulated_bytes_to_first_relevant": 51,
+          "read_stopped_at_relevant": false
+        }
+      },
+      "order_changed": {
+        "B": true,
+        "C": true
+      },
+      "improvement_opportunity": false
+    },
+    {
+      "case_id": "wrong-order",
+      "development_fixture": true,
+      "fixture_category": "wrong_order",
+      "covered": true,
+      "repo_revision": "synthetic-fixture",
+      "ranker_revision": "v1-policy-fixture",
+      "pool_provenance": {
+        "kind": "constructed",
+        "collector_blind_to_answer": false,
+        "annotation_source": "Synthetic evaluator labels; not a measured bug investigation."
+      },
+      "c_source": "fake",
+      "jev_version": "0.3.2",
+      "c_status": "ranked",
+      "relevant_candidate_ids": [
+        "c2"
+      ],
+      "hashes": {
+        "evidence_hash": "a9dc7361f62a4a34a6cb7c069bcf55c914b493af73900b2ddb27fba925e0b6a1",
+        "candidate_hash": "efac388d110e93d4b6d3c5d565b338ffeb024221a92c0bec9665ee37444983cb",
+        "frozen_hash": "e36b4fa32b59f64f849cb79b359f6aee95ee91e3c49150d7d5ec378989e1f50f"
+      },
+      "arms": {
+        "A": {
+          "order": [
+            "c1",
+            "c2",
+            "c3",
+            "c4"
+          ],
+          "first_relevant_rank": 2,
+          "hit_at_1": 0,
+          "hit_at_3": 1,
+          "mrr": 0.5,
+          "simulated_bytes_to_first_relevant": 16,
+          "read_stopped_at_relevant": true
+        },
+        "B": {
+          "order": [
+            "c4",
+            "c2",
+            "c3",
+            "c1"
+          ],
+          "first_relevant_rank": 2,
+          "hit_at_1": 0,
+          "hit_at_3": 1,
+          "mrr": 0.5,
+          "simulated_bytes_to_first_relevant": 33,
+          "read_stopped_at_relevant": true
+        },
+        "C": {
+          "order": [
+            "c1",
+            "c3",
+            "c4",
+            "c2"
+          ],
+          "first_relevant_rank": 4,
+          "hit_at_1": 0,
+          "hit_at_3": 0,
+          "mrr": 0.25,
+          "simulated_bytes_to_first_relevant": 51,
+          "read_stopped_at_relevant": true
+        }
+      },
+      "order_changed": {
+        "B": true,
+        "C": true
+      },
+      "improvement_opportunity": true
+    },
+    {
+      "case_id": "partial-fallback",
+      "development_fixture": true,
+      "fixture_category": "fallback",
+      "covered": true,
+      "repo_revision": "synthetic-fixture",
+      "ranker_revision": "v1-policy-fixture",
+      "pool_provenance": {
+        "kind": "constructed",
+        "collector_blind_to_answer": false,
+        "annotation_source": "Synthetic evaluator labels; not a measured bug investigation."
+      },
+      "c_source": "fake",
+      "jev_version": "0.3.2",
+      "c_status": "partial",
+      "relevant_candidate_ids": [
+        "c4"
+      ],
+      "hashes": {
+        "evidence_hash": "a9dc7361f62a4a34a6cb7c069bcf55c914b493af73900b2ddb27fba925e0b6a1",
+        "candidate_hash": "efac388d110e93d4b6d3c5d565b338ffeb024221a92c0bec9665ee37444983cb",
+        "frozen_hash": "e36b4fa32b59f64f849cb79b359f6aee95ee91e3c49150d7d5ec378989e1f50f"
+      },
+      "arms": {
+        "A": {
+          "order": [
+            "c1",
+            "c2",
+            "c3",
+            "c4"
+          ],
+          "first_relevant_rank": 4,
+          "hit_at_1": 0,
+          "hit_at_3": 0,
+          "mrr": 0.25,
+          "simulated_bytes_to_first_relevant": 51,
+          "read_stopped_at_relevant": true
+        },
+        "B": {
+          "order": [
+            "c4",
+            "c2",
+            "c3",
+            "c1"
+          ],
+          "first_relevant_rank": 1,
+          "hit_at_1": 1,
+          "hit_at_3": 1,
+          "mrr": 1.0,
+          "simulated_bytes_to_first_relevant": 21,
+          "read_stopped_at_relevant": true
+        },
+        "C": {
+          "order": [
+            "c2",
+            "c4",
+            "c3",
+            "c1"
+          ],
+          "first_relevant_rank": 2,
+          "hit_at_1": 0,
+          "hit_at_3": 1,
+          "mrr": 0.5,
+          "simulated_bytes_to_first_relevant": 33,
+          "read_stopped_at_relevant": true
+        }
+      },
+      "order_changed": {
+        "B": true,
+        "C": true
+      },
+      "improvement_opportunity": true
+    },
+    {
+      "case_id": "all-fallback",
+      "development_fixture": true,
+      "fixture_category": "fallback",
+      "covered": true,
+      "repo_revision": "synthetic-fixture",
+      "ranker_revision": "v1-policy-fixture",
+      "pool_provenance": {
+        "kind": "constructed",
+        "collector_blind_to_answer": false,
+        "annotation_source": "Synthetic evaluator labels; not a measured bug investigation."
+      },
+      "c_source": "fake",
+      "jev_version": "0.3.2",
+      "c_status": "fallback",
+      "relevant_candidate_ids": [
+        "c4"
+      ],
+      "hashes": {
+        "evidence_hash": "a9dc7361f62a4a34a6cb7c069bcf55c914b493af73900b2ddb27fba925e0b6a1",
+        "candidate_hash": "48e789a3b3be8bac7abf6f3a436b812c36b9e90058f8978c0d2af31465e54284",
+        "frozen_hash": "518015995cbb159fe3417c5f53ef568e10995dcf5ce34aa886c6d2318935a655"
+      },
+      "arms": {
+        "A": {
+          "order": [
+            "c2",
+            "c1",
+            "c3",
+            "c4"
+          ],
+          "first_relevant_rank": 4,
+          "hit_at_1": 0,
+          "hit_at_3": 0,
+          "mrr": 0.25,
+          "simulated_bytes_to_first_relevant": 51,
+          "read_stopped_at_relevant": true
+        },
+        "B": {
+          "order": [
+            "c2",
+            "c4",
+            "c3",
+            "c1"
+          ],
+          "first_relevant_rank": 2,
+          "hit_at_1": 0,
+          "hit_at_3": 1,
+          "mrr": 0.5,
+          "simulated_bytes_to_first_relevant": 33,
+          "read_stopped_at_relevant": true
+        },
+        "C": {
+          "order": [
+            "c2",
+            "c1",
+            "c3",
+            "c4"
+          ],
+          "first_relevant_rank": 4,
+          "hit_at_1": 0,
+          "hit_at_3": 0,
+          "mrr": 0.25,
+          "simulated_bytes_to_first_relevant": 51,
+          "read_stopped_at_relevant": true
+        }
+      },
+      "order_changed": {
+        "B": true,
+        "C": false
+      },
+      "improvement_opportunity": true
+    },
+    {
+      "case_id": "multiple-relevant",
+      "development_fixture": true,
+      "fixture_category": "multiple_relevant",
+      "covered": true,
+      "repo_revision": "synthetic-fixture",
+      "ranker_revision": "v1-policy-fixture",
+      "pool_provenance": {
+        "kind": "constructed",
+        "collector_blind_to_answer": false,
+        "annotation_source": "Synthetic evaluator labels; c2 and c3 jointly explain the multiple-relevant fixture."
+      },
+      "c_source": "fake",
+      "jev_version": "0.3.2",
+      "c_status": "ranked",
+      "relevant_candidate_ids": [
+        "c2",
+        "c3"
+      ],
+      "hashes": {
+        "evidence_hash": "a9dc7361f62a4a34a6cb7c069bcf55c914b493af73900b2ddb27fba925e0b6a1",
+        "candidate_hash": "efac388d110e93d4b6d3c5d565b338ffeb024221a92c0bec9665ee37444983cb",
+        "frozen_hash": "e36b4fa32b59f64f849cb79b359f6aee95ee91e3c49150d7d5ec378989e1f50f"
+      },
+      "arms": {
+        "A": {
+          "order": [
+            "c1",
+            "c2",
+            "c3",
+            "c4"
+          ],
+          "first_relevant_rank": 2,
+          "hit_at_1": 0,
+          "hit_at_3": 1,
+          "mrr": 0.5,
+          "simulated_bytes_to_first_relevant": 16,
+          "read_stopped_at_relevant": true
+        },
+        "B": {
+          "order": [
+            "c4",
+            "c2",
+            "c3",
+            "c1"
+          ],
+          "first_relevant_rank": 2,
+          "hit_at_1": 0,
+          "hit_at_3": 1,
+          "mrr": 0.5,
+          "simulated_bytes_to_first_relevant": 33,
+          "read_stopped_at_relevant": true
+        },
+        "C": {
+          "order": [
+            "c3",
+            "c2",
+            "c4",
+            "c1"
+          ],
+          "first_relevant_rank": 1,
+          "hit_at_1": 1,
+          "hit_at_3": 1,
+          "mrr": 1.0,
+          "simulated_bytes_to_first_relevant": 14,
+          "read_stopped_at_relevant": true
+        }
+      },
+      "order_changed": {
+        "B": true,
+        "C": true
+      },
+      "improvement_opportunity": true
+    }
+  ],
+  "interpretation": "Fixed-pool ranking and simulated snippet bytes only; no measured repair, reading, time or cost benefit."
+}
